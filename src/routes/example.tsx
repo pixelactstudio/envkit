@@ -77,6 +77,7 @@ function ExamplePage() {
           onChange={setSource}
         />
         <OutputPanel
+          tool="example"
           id="example-output"
           label="Safe template"
           description="Review comments for manually written secrets before committing."
