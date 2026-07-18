@@ -118,6 +118,8 @@ function FormatPage() {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <EnvEditor
+          tool="format"
+          fileCount={1}
           id="format-source"
           label="Unformatted ENV"
           description="Paste mixed quoting styles or load a local file."
