@@ -149,6 +149,7 @@ function ConvertPage() {
           }
         />
         <OutputPanel
+          tool="convert"
           id="convert-result"
           label="Converted output"
           value={result.value}
