@@ -4,7 +4,8 @@ import { createFileRoute } from "@tanstack/react-router"
 import { EnvEditor, OutputPanel, ToolPage } from "@/components/tool-ui"
 import { Badge } from "@/components/ui/badge"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
-import { formatEnvFile } from "@/lib/env"
+import { useToolCompletion } from "@/lib/analytics"
+import { formatEnvFile, parseEnv } from "@/lib/env"
 import type { EnvQuoteMode } from "@/lib/env"
 import { seoMeta } from "@/lib/seo"
 
@@ -27,9 +28,18 @@ function FormatPage() {
     () => formatEnvFile(source, quotes, sort, keepComments),
     [source, quotes, sort, keepComments]
   )
+  const document = useMemo(() => parseEnv(source), [source])
+  useToolCompletion({
+    tool: "format",
+    operation: source,
+    active: Boolean(source.trim() && (document.entries.length || result.error)),
+    variableCount: document.entries.length,
+    errorCode: result.error ? "invalid_input" : undefined,
+  })
 
   return (
     <ToolPage
+      tool="format"
       title="ENV Formatter"
       description="Normalize quoting, remove duplicate assignments, and optionally sort variables into a consistent file."
     >
