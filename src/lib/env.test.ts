@@ -63,21 +63,14 @@ describe("ENV helpers", () => {
       convertEnvironment("DISCORD_API_ID=123", "env", "docker", "references")
     ).toBe("environment:\n  DISCORD_API_ID: ${DISCORD_API_ID}")
     expect(
-      convertEnvironment(
-        "SECRET=${HOST_SECRET}",
-        "env",
-        "docker",
-        "values"
-      )
+      convertEnvironment("SECRET=${HOST_SECRET}", "env", "docker", "values")
     ).toBe('environment:\n  SECRET: "$${HOST_SECRET}"')
   })
 
   it("rejects JSON integers that cannot be represented exactly", () => {
     expect(() =>
       convertEnvironment('{"ID":9007199254740993}', "json", "env")
-    ).toThrow(
-      "JSON number 9007199254740993 is outside the safe integer range"
-    )
+    ).toThrow("JSON number 9007199254740993 is outside the safe integer range")
   })
 
   it("handles quoted multiline values across every output path", () => {
