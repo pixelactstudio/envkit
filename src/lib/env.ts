@@ -412,8 +412,47 @@ export function mergeEnvs(
   }
 }
 
+function assertSafeJsonIntegers(source: string) {
+  let inString = false
+  let escaped = false
+
+  for (let index = 0; index < source.length; index += 1) {
+    const character = source[index]
+
+    if (inString) {
+      if (escaped) escaped = false
+      else if (character === "\\") escaped = true
+      else if (character === '"') inString = false
+      continue
+    }
+
+    if (character === '"') {
+      inString = true
+      continue
+    }
+    if (character !== "-" && !/\d/.test(character)) continue
+
+    const token = source
+      .slice(index)
+      .match(/^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/)?.[0]
+    if (!token) continue
+
+    const value = Number(token)
+    if (
+      !Number.isFinite(value) ||
+      (Number.isInteger(value) && !Number.isSafeInteger(value))
+    ) {
+      throw new Error(
+        `JSON number ${token} is outside the safe integer range; wrap it in quotes to preserve it.`
+      )
+    }
+    index += token.length - 1
+  }
+}
+
 function entriesFromJson(source: string): EnvEntry[] {
   const parsed: unknown = JSON.parse(source)
+  assertSafeJsonIntegers(source)
   if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") {
     throw new Error("JSON input must be a flat object.")
   }

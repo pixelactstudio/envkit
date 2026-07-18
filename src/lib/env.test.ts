@@ -71,4 +71,12 @@ describe("ENV helpers", () => {
       )
     ).toBe('environment:\n  SECRET: "$${HOST_SECRET}"')
   })
+
+  it("rejects JSON integers that cannot be represented exactly", () => {
+    expect(() =>
+      convertEnvironment('{"ID":9007199254740993}', "json", "env")
+    ).toThrow(
+      "JSON number 9007199254740993 is outside the safe integer range"
+    )
+  })
 })
