@@ -27,6 +27,7 @@ Requirements: Node.js and pnpm.
 git clone https://github.com/pixelactstudio/envkit.git
 cd envkit
 pnpm install
+cp .env.example .env.local
 pnpm dev
 ```
 
