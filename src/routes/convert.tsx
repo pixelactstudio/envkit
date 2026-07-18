@@ -131,6 +131,8 @@ function ConvertPage() {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <EnvEditor
+          tool="convert"
+          fileCount={1}
           id="convert-source"
           label="Input"
           description={
