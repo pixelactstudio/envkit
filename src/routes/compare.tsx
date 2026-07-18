@@ -181,6 +181,7 @@ function ComparePage() {
 
   return (
     <ToolPage
+      tool="compare"
       title="Compare ENV files"
       description="Compare two or more environments to find missing keys and value differences. Values stay hidden until you reveal them."
     >
