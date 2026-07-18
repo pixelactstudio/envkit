@@ -27,6 +27,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { INITIAL_COMPARE_FILES } from "@/constants/env"
+import { track, useToolCompletion } from "@/lib/analytics"
 import { copyText } from "@/lib/clipboard"
 import { compareManyEnvs, formatEnv, parseEnv } from "@/lib/env"
 import type { EnvEntry } from "@/lib/env"
@@ -61,8 +62,13 @@ function KeyList({ keys, empty }: { keys: string[]; empty: string }) {
                   try {
                     await copyText(key)
                     setCopied(key)
+                    track("output copied", { tool: "compare" })
                   } catch {
                     setCopied("")
+                    track("tool error", {
+                      tool: "compare",
+                      error_code: "copy_failed",
+                    })
                   }
                 }}
               />
@@ -145,6 +151,17 @@ function ComparePage() {
     [files]
   )
   const hasInput = files.some(({ content }) => content.trim())
+  const inputCount = files.filter(({ content }) => content.trim()).length
+  const hasError = documents.some((document) =>
+    document.issues.some(({ severity }) => severity === "error")
+  )
+  useToolCompletion({
+    tool: "compare",
+    operation: files.map(({ content }) => content).join("\0"),
+    active: inputCount >= 2,
+    variableCount: comparison.rows.length,
+    errorCode: hasError ? "invalid_input" : undefined,
+  })
 
   function updateFile(id: number, update: Partial<CompareFile>) {
     setFiles((current) =>
@@ -247,6 +264,7 @@ function ComparePage() {
                 <div className="flex flex-wrap gap-2">
                   {files.map((file, index) => (
                     <CopyButton
+                      tool="compare"
                       key={file.id}
                       text={formatEnv(comparison.missingByFile[index])}
                       label={`Copy ${comparison.missingByFile[index].length} for ${file.name}`}
