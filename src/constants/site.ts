@@ -1,8 +1,9 @@
 export const SITE_CONFIG = {
   name: "EnvKit",
+  url: "https://envkit.damnlabs.com",
   logo: "/envkit-mark.svg",
-  daymLabs: {
-    name: "Daym Labs",
+  damnLabs: {
+    name: "Damn Labs",
     url: "https://damnlabs.com",
   },
   pixelactStudio: {
