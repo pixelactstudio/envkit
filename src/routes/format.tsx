@@ -127,6 +127,7 @@ function FormatPage() {
           onChange={setSource}
         />
         <OutputPanel
+          tool="format"
           id="format-result"
           label="Formatted ENV"
           description={
