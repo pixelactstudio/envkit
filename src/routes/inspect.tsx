@@ -51,6 +51,8 @@ function InspectPage() {
     >
       <div className="space-y-4">
         <EnvEditor
+          tool="inspect"
+          fileCount={1}
           id="inspect-input"
           label="ENV file"
           description={`${document.entries.length} valid variables detected`}
