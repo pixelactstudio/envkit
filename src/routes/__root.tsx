@@ -33,7 +33,7 @@ export const Route = createRootRoute({
       },
       {
         name: "author",
-        content: `${SITE_CONFIG.daymLabs.name}, ${SITE_CONFIG.pixelactStudio.name}`,
+        content: `${SITE_CONFIG.damnLabs.name}, ${SITE_CONFIG.pixelactStudio.name}`,
       },
       {
         name: "application-name",
@@ -59,6 +59,10 @@ export const Route = createRootRoute({
       {
         property: "og:site_name",
         content: SITE_CONFIG.name,
+      },
+      {
+        property: "og:url",
+        content: SITE_CONFIG.url,
       },
       {
         name: "twitter:card",

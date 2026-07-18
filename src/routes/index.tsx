@@ -92,10 +92,10 @@ function HomePage() {
         <p>
           Built for the community by{" "}
           <a
-            href={SITE_CONFIG.daymLabs.url}
+            href={SITE_CONFIG.damnLabs.url}
             className="underline underline-offset-3 hover:text-foreground"
           >
-            {SITE_CONFIG.daymLabs.name}
+            {SITE_CONFIG.damnLabs.name}
           </a>
           , a{" "}
           <a
