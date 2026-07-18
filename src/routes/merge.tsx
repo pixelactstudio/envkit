@@ -90,6 +90,8 @@ function MergePage() {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <EnvEditor
+          tool="merge"
+          fileCount={inputCount + (left.trim() ? 0 : 1)}
           id="merge-left"
           label="File A"
           description={
@@ -103,6 +105,8 @@ function MergePage() {
           onChange={setLeft}
         />
         <EnvEditor
+          tool="merge"
+          fileCount={inputCount + (right.trim() ? 0 : 1)}
           id="merge-right"
           label="File B"
           description={
