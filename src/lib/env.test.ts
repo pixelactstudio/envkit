@@ -1,0 +1,66 @@
+import { describe, expect, it } from "vitest"
+
+import {
+  compareManyEnvs,
+  compareEnvs,
+  convertEnvironment,
+  formatEnvFile,
+  generateExample,
+  mergeEnvs,
+  parseEnv,
+} from "./env"
+
+describe("ENV helpers", () => {
+  it("parses, compares, redacts, merges, and converts without exposing input", () => {
+    const left = "# app\nPORT=3000\nTOKEN='secret value'\nPORT=4000"
+    const right = "PORT=4000\nHOST=localhost"
+
+    expect(parseEnv(left).duplicateKeys).toEqual(["PORT"])
+    expect(compareEnvs(left, right)).toMatchObject({
+      onlyLeft: [{ key: "TOKEN" }],
+      onlyRight: [{ key: "HOST" }],
+      same: [{ left: { key: "PORT" } }],
+      changed: [],
+    })
+    expect(generateExample(left)).not.toContain("secret value")
+    expect(mergeEnvs(left, right).output).toBe(
+      'HOST=localhost\nPORT=4000\nTOKEN="secret value"'
+    )
+    expect(mergeEnvs("VALID=yes\nnot valid", right).error).toContain(
+      "File A line 2"
+    )
+    expect(convertEnvironment('{"PORT":3000}', "json", "shell")).toBe(
+      "export PORT='3000'"
+    )
+    expect(
+      convertEnvironment("NEXT_PUBLIC_GOOGLE_FONT_API_KEY=value", "env", "json")
+    ).toContain("NEXT_PUBLIC_GOOGLE_FONT_API_KEY")
+    expect(
+      compareManyEnvs(["PORT=3000\nHOST=local", "PORT=4000", "PORT=3000"])
+    ).toMatchObject({
+      missing: [{ key: "HOST" }],
+      different: [{ key: "PORT" }],
+      same: [],
+    })
+    expect(formatEnvFile("B='two words'\nA=one", "always").output).toBe(
+      'A="one"\nB="two words"'
+    )
+    expect(
+      formatEnvFile("# Service\nB=two\nA=one", "smart", true, true).output
+    ).toBe("# Service\n\nA=one\nB=two")
+    expect(formatEnvFile("# Service\nB=two", "smart", true, false).output).toBe(
+      "B=two"
+    )
+    expect(
+      mergeEnvs("A=one\nLEFT=yes", "A=two\nRIGHT=yes", "manual")
+    ).toMatchObject({ output: "", unresolved: 1 })
+    expect(
+      mergeEnvs("A=one\nLEFT=yes", "A=two\nRIGHT=yes", "manual", {
+        A: "left",
+      }).output
+    ).toBe("A=one\nLEFT=yes\nRIGHT=yes")
+    expect(
+      convertEnvironment("DISCORD_API_ID=123", "env", "docker", "references")
+    ).toBe("environment:\n  DISCORD_API_ID: ${DISCORD_API_ID}")
+  })
+})
