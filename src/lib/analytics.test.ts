@@ -1,34 +1,44 @@
 // @vitest-environment jsdom
 
-import { createElement } from "react"
+import { createElement, useEffect } from "react"
 import { act, render } from "@testing-library/react"
 import { afterEach, beforeEach, expect, it, vi } from "vitest"
 
 const posthog = vi.hoisted(() => ({
-  init: vi.fn(),
   capture: vi.fn(),
 }))
 
-vi.mock("posthog-js/dist/module.slim", () => ({ default: posthog }))
+vi.mock("@posthog/react", () => ({ usePostHog: () => posthog }))
 
 beforeEach(() => {
   vi.resetModules()
   vi.stubEnv("VITE_POSTHOG_KEY", "phc_test")
-  posthog.init.mockClear()
   posthog.capture.mockClear()
 })
 
 afterEach(() => vi.useRealTimers())
 
 it("allows only manual privacy-safe analytics", async () => {
-  const { fileCountBucket, track, variableCountBucket } =
-    await import("./analytics")
+  const {
+    fileCountBucket,
+    POSTHOG_OPTIONS,
+    useAnalytics,
+    variableCountBucket,
+  } = await import("./analytics")
 
-  track("input added", {
-    tool: "compare",
-    source: "drop",
-    file_count: fileCountBucket(4),
-  })
+  function Capture() {
+    const track = useAnalytics()
+    useEffect(() => {
+      track("input added", {
+        tool: "compare",
+        source: "drop",
+        file_count: fileCountBucket(4),
+      })
+    }, [track])
+    return null
+  }
+
+  render(createElement(Capture))
 
   expect(posthog.capture).toHaveBeenCalledWith("input added", {
     tool: "compare",
@@ -37,8 +47,9 @@ it("allows only manual privacy-safe analytics", async () => {
   })
   expect(variableCountBucket(77)).toBe("51-100")
 
-  const config = posthog.init.mock.calls[0][1] as Record<string, unknown>
+  const config = POSTHOG_OPTIONS as Record<string, unknown>
   expect(config).toMatchObject({
+    defaults: "2026-05-30",
     autocapture: false,
     capture_pageview: false,
     capture_pageleave: false,
@@ -50,6 +61,7 @@ it("allows only manual privacy-safe analytics", async () => {
     disable_surveys: true,
     advanced_disable_flags: true,
     rageclick: false,
+    respect_dnt: true,
   })
 
   const beforeSend = config.before_send as (event: { event: string }) => unknown
@@ -57,6 +69,21 @@ it("allows only manual privacy-safe analytics", async () => {
   expect(beforeSend({ event: "tool completed" })).toEqual({
     event: "tool completed",
   })
+})
+
+it("does not capture without a project key", async () => {
+  vi.stubEnv("VITE_POSTHOG_KEY", "")
+  vi.resetModules()
+  const { useAnalytics } = await import("./analytics")
+
+  function Capture() {
+    const track = useAnalytics()
+    useEffect(() => track("tool opened", { tool: "inspect" }), [track])
+    return null
+  }
+
+  render(createElement(Capture))
+  expect(posthog.capture).not.toHaveBeenCalled()
 })
 
 it("completes an operation without sending its editor state", async () => {

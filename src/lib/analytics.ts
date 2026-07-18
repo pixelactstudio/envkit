@@ -1,5 +1,6 @@
-import { useEffect } from "react"
-import posthog from "posthog-js/dist/module.slim"
+import { useCallback, useEffect } from "react"
+import { usePostHog } from "@posthog/react"
+import type { PostHogConfig } from "posthog-js"
 
 export type ToolName =
   "compare" | "example" | "inspect" | "merge" | "format" | "convert"
@@ -30,45 +31,43 @@ const EVENT_NAMES = new Set<keyof AnalyticsEvents>([
   "output downloaded",
   "tool error",
 ])
-let initialized = false
 
-function client() {
-  if (typeof window === "undefined") return undefined
-  if (initialized) return posthog
+export const POSTHOG_API_KEY = import.meta.env.VITE_POSTHOG_KEY
+export const POSTHOG_OPTIONS = {
+  api_host: import.meta.env.VITE_POSTHOG_HOST || "https://us.i.posthog.com",
+  defaults: "2026-05-30",
+  autocapture: false,
+  capture_pageview: false,
+  capture_pageleave: false,
+  capture_dead_clicks: false,
+  capture_exceptions: false,
+  capture_heatmaps: false,
+  capture_performance: false,
+  disable_session_recording: true,
+  disable_surveys: true,
+  advanced_disable_flags: true,
+  rageclick: false,
+  person_profiles: "identified_only",
+  persistence: "localStorage",
+  respect_dnt: true,
+  before_send: (event) =>
+    event && EVENT_NAMES.has(event.event as keyof AnalyticsEvents)
+      ? event
+      : null,
+} satisfies Partial<PostHogConfig>
 
-  const token = import.meta.env.VITE_POSTHOG_KEY
-  if (!token) return undefined
+export function useAnalytics() {
+  const posthog = usePostHog()
 
-  posthog.init(token, {
-    api_host: import.meta.env.VITE_POSTHOG_HOST || "https://us.i.posthog.com",
-    autocapture: false,
-    capture_pageview: false,
-    capture_pageleave: false,
-    capture_dead_clicks: false,
-    capture_exceptions: false,
-    capture_heatmaps: false,
-    capture_performance: false,
-    disable_session_recording: true,
-    disable_surveys: true,
-    advanced_disable_flags: true,
-    rageclick: false,
-    person_profiles: "identified_only",
-    persistence: "localStorage",
-    respect_dnt: true,
-    before_send: (event) =>
-      event && EVENT_NAMES.has(event.event as keyof AnalyticsEvents)
-        ? event
-        : null,
-  })
-  initialized = true
-  return posthog
-}
-
-export function track<TEvent extends keyof AnalyticsEvents>(
-  event: TEvent,
-  properties: AnalyticsEvents[TEvent]
-) {
-  client()?.capture(event, properties)
+  return useCallback(
+    <TEvent extends keyof AnalyticsEvents>(
+      event: TEvent,
+      properties: AnalyticsEvents[TEvent]
+    ) => {
+      if (POSTHOG_API_KEY) posthog.capture(event, properties)
+    },
+    [posthog]
+  )
 }
 
 export function fileCountBucket(count: number): "1" | "2" | "3+" {
@@ -99,6 +98,8 @@ export function useToolCompletion({
   variableCount: number
   errorCode?: ToolErrorCode
 }) {
+  const track = useAnalytics()
+
   useEffect(() => {
     if (!active) return
 
@@ -112,5 +113,5 @@ export function useToolCompletion({
     }, 800)
 
     return () => window.clearTimeout(timeout)
-  }, [active, errorCode, operation, tool, variableCount])
+  }, [active, errorCode, operation, tool, track, variableCount])
 }

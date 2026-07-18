@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { fileCountBucket, track } from "@/lib/analytics"
+import { fileCountBucket, useAnalytics } from "@/lib/analytics"
 import type { ToolName } from "@/lib/analytics"
 import { copyText } from "@/lib/clipboard"
 import { cn } from "@/lib/utils"
@@ -38,7 +38,12 @@ export function ToolPage({
   description: string
   children: ReactNode
 }) {
-  useEffect(() => track("tool opened", { tool }), [tool])
+  const track = useAnalytics()
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => track("tool opened", { tool }))
+    return () => window.clearTimeout(timeout)
+  }, [tool, track])
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
@@ -87,6 +92,7 @@ export function EnvEditor({
   action?: ReactNode
   onFileLoad?: (name: string) => void
 }) {
+  const track = useAnalytics()
   const [error, setError] = useState("")
   const [dragging, setDragging] = useState(false)
 
@@ -211,6 +217,7 @@ export function CopyButton({
   text: string
   label?: string
 }) {
+  const track = useAnalytics()
   const [status, setStatus] = useState<"idle" | "copied" | "error">("idle")
 
   async function copy() {
@@ -255,6 +262,8 @@ function DownloadButton({
   text: string
   filename: string
 }) {
+  const track = useAnalytics()
+
   function download() {
     const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }))
     const anchor = document.createElement("a")

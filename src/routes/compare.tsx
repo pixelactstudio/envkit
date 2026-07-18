@@ -27,7 +27,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { INITIAL_COMPARE_FILES } from "@/constants/env"
-import { track, useToolCompletion } from "@/lib/analytics"
+import { useAnalytics, useToolCompletion } from "@/lib/analytics"
 import { copyText } from "@/lib/clipboard"
 import { compareManyEnvs, formatEnv, parseEnv } from "@/lib/env"
 import type { EnvEntry } from "@/lib/env"
@@ -47,6 +47,7 @@ export const Route = createFileRoute("/compare")({
 })
 
 function KeyList({ keys, empty }: { keys: string[]; empty: string }) {
+  const track = useAnalytics()
   const [copied, setCopied] = useState("")
 
   return keys.length ? (
