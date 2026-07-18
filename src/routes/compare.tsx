@@ -199,6 +199,8 @@ function ComparePage() {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,22rem),1fr))] gap-4">
         {files.map((file, index) => (
           <EnvEditor
+            tool="compare"
+            fileCount={inputCount + (file.content.trim() ? 0 : 1)}
             key={file.id}
             id={`compare-${file.id}`}
             label={file.name}
