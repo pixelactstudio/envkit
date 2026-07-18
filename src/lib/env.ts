@@ -31,6 +31,21 @@ function assignment(line: string) {
   return match ? { key: match[1].trim(), rawValue: match[2].trim() } : undefined
 }
 
+function hasClosingQuote(rawValue: string, quote: string) {
+  const value = rawValue.trimEnd()
+  if (!value.endsWith(quote)) return false
+
+  let backslashes = 0
+  for (
+    let index = value.length - 2;
+    index >= 0 && value[index] === "\\";
+    index -= 1
+  ) {
+    backslashes += 1
+  }
+  return backslashes % 2 === 0
+}
+
 function decodeValue(rawValue: string) {
   if (
     (rawValue.startsWith('"') && rawValue.endsWith('"')) ||
@@ -38,7 +53,7 @@ function decodeValue(rawValue: string) {
   ) {
     if (rawValue.startsWith('"')) {
       try {
-        return JSON.parse(rawValue) as string
+        return JSON.parse(rawValue.replaceAll("\n", "\\n")) as string
       } catch {
         // Dotenv quoting is looser than JSON; removing the quotes is still safe.
       }
@@ -93,11 +108,12 @@ export function parseEnv(source: string): EnvDocument {
     let rawValue = parsed.rawValue
     const quote = rawValue[0]
     if (quote === '"' || quote === "'") {
-      while (!rawValue.endsWith(quote) && index + 1 < lines.length) {
+      while (!hasClosingQuote(rawValue, quote) && index + 1 < lines.length) {
         rawValue += `\n${lines[(index += 1)]}`
       }
+      rawValue = rawValue.trimEnd()
     }
-    if ((quote === '"' || quote === "'") && !rawValue.endsWith(quote)) {
+    if ((quote === '"' || quote === "'") && !hasClosingQuote(rawValue, quote)) {
       issues.push({
         severity: "error",
         line,

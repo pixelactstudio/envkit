@@ -93,4 +93,14 @@ describe("ENV helpers", () => {
       output: `HOST=localhost\nPORT=3000\n${encoded}`,
     })
   })
+
+  it("keeps reading after an escaped quote at the end of a line", () => {
+    const document = parseEnv('MESSAGE="first line\\"\nsecond line"\nPORT=3000')
+
+    expect(document.issues).toEqual([])
+    expect(document.entries).toEqual([
+      { key: "MESSAGE", value: 'first line"\nsecond line', line: 1 },
+      { key: "PORT", value: "3000", line: 3 },
+    ])
+  })
 })
