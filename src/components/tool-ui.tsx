@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { DragEvent, ReactNode } from "react"
 import { Link } from "@tanstack/react-router"
 import {
@@ -22,18 +22,24 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { fileCountBucket, track } from "@/lib/analytics"
+import type { ToolName } from "@/lib/analytics"
 import { copyText } from "@/lib/clipboard"
 import { cn } from "@/lib/utils"
 
 export function ToolPage({
+  tool,
   title,
   description,
   children,
 }: {
+  tool: ToolName
   title: string
   description: string
   children: ReactNode
 }) {
+  useEffect(() => track("tool opened", { tool }), [tool])
+
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       <Link
@@ -57,6 +63,8 @@ export function ToolPage({
 }
 
 export function EnvEditor({
+  tool,
+  fileCount,
   id,
   label,
   description,
@@ -67,6 +75,8 @@ export function EnvEditor({
   action,
   onFileLoad,
 }: {
+  tool: ToolName
+  fileCount: number
   id: string
   label: string
   description?: string
@@ -80,14 +90,20 @@ export function EnvEditor({
   const [error, setError] = useState("")
   const [dragging, setDragging] = useState(false)
 
-  async function readFile(file?: File) {
+  async function readFile(file: File | undefined, source: "file" | "drop") {
     if (!file) return
     try {
       onChange(await file.text())
       onFileLoad?.(file.name)
       setError("")
+      track("input added", {
+        tool,
+        source,
+        file_count: fileCountBucket(fileCount),
+      })
     } catch {
       setError("The selected file could not be read.")
+      track("tool error", { tool, error_code: "file_read_failed" })
     }
   }
 
@@ -115,7 +131,7 @@ export function EnvEditor({
       onDrop={(event) => {
         event.preventDefault()
         setDragging(false)
-        void readFile(event.dataTransfer.files[0])
+        void readFile(event.dataTransfer.files[0], "drop")
       }}
     >
       {dragging ? (
@@ -155,6 +171,13 @@ export function EnvEditor({
           id={id}
           value={value}
           onChange={(event) => onChange(event.target.value)}
+          onPaste={() =>
+            track("input added", {
+              tool,
+              source: "paste",
+              file_count: fileCountBucket(fileCount),
+            })
+          }
           placeholder={placeholder}
           spellCheck={false}
           wrap="soft"
@@ -168,7 +191,7 @@ export function EnvEditor({
             accept={accept}
             className="sr-only"
             onChange={(event) => {
-              void readFile(event.target.files?.[0])
+              void readFile(event.target.files?.[0], "file")
               event.currentTarget.value = ""
             }}
           />
