@@ -8,43 +8,167 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root"
-import { Route as IndexRouteImport } from "./routes/index"
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as MergeRouteImport } from './routes/merge'
+import { Route as InspectRouteImport } from './routes/inspect'
+import { Route as FormatRouteImport } from './routes/format'
+import { Route as ExampleRouteImport } from './routes/example'
+import { Route as ConvertRouteImport } from './routes/convert'
+import { Route as CompareRouteImport } from './routes/compare'
+import { Route as IndexRouteImport } from './routes/index'
 
+const MergeRoute = MergeRouteImport.update({
+  id: '/merge',
+  path: '/merge',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InspectRoute = InspectRouteImport.update({
+  id: '/inspect',
+  path: '/inspect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FormatRoute = FormatRouteImport.update({
+  id: '/format',
+  path: '/format',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExampleRoute = ExampleRouteImport.update({
+  id: '/example',
+  path: '/example',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConvertRoute = ConvertRouteImport.update({
+  id: '/convert',
+  path: '/convert',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompareRoute = CompareRouteImport.update({
+  id: '/compare',
+  path: '/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute
+  '/': typeof IndexRoute
+  '/compare': typeof CompareRoute
+  '/convert': typeof ConvertRoute
+  '/example': typeof ExampleRoute
+  '/format': typeof FormatRoute
+  '/inspect': typeof InspectRoute
+  '/merge': typeof MergeRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute
+  '/': typeof IndexRoute
+  '/compare': typeof CompareRoute
+  '/convert': typeof ConvertRoute
+  '/example': typeof ExampleRoute
+  '/format': typeof FormatRoute
+  '/inspect': typeof InspectRoute
+  '/merge': typeof MergeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  "/": typeof IndexRoute
+  '/': typeof IndexRoute
+  '/compare': typeof CompareRoute
+  '/convert': typeof ConvertRoute
+  '/example': typeof ExampleRoute
+  '/format': typeof FormatRoute
+  '/inspect': typeof InspectRoute
+  '/merge': typeof MergeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: "/"
+  fullPaths:
+    | '/'
+    | '/compare'
+    | '/convert'
+    | '/example'
+    | '/format'
+    | '/inspect'
+    | '/merge'
   fileRoutesByTo: FileRoutesByTo
-  to: "/"
-  id: "__root__" | "/"
+  to:
+    | '/'
+    | '/compare'
+    | '/convert'
+    | '/example'
+    | '/format'
+    | '/inspect'
+    | '/merge'
+  id:
+    | '__root__'
+    | '/'
+    | '/compare'
+    | '/convert'
+    | '/example'
+    | '/format'
+    | '/inspect'
+    | '/merge'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CompareRoute: typeof CompareRoute
+  ConvertRoute: typeof ConvertRoute
+  ExampleRoute: typeof ExampleRoute
+  FormatRoute: typeof FormatRoute
+  InspectRoute: typeof InspectRoute
+  MergeRoute: typeof MergeRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/": {
-      id: "/"
-      path: "/"
-      fullPath: "/"
+    '/merge': {
+      id: '/merge'
+      path: '/merge'
+      fullPath: '/merge'
+      preLoaderRoute: typeof MergeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inspect': {
+      id: '/inspect'
+      path: '/inspect'
+      fullPath: '/inspect'
+      preLoaderRoute: typeof InspectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/format': {
+      id: '/format'
+      path: '/format'
+      fullPath: '/format'
+      preLoaderRoute: typeof FormatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/example': {
+      id: '/example'
+      path: '/example'
+      fullPath: '/example'
+      preLoaderRoute: typeof ExampleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/convert': {
+      id: '/convert'
+      path: '/convert'
+      fullPath: '/convert'
+      preLoaderRoute: typeof ConvertRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compare': {
+      id: '/compare'
+      path: '/compare'
+      fullPath: '/compare'
+      preLoaderRoute: typeof CompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -53,14 +177,20 @@ declare module "@tanstack/react-router" {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CompareRoute: CompareRoute,
+  ConvertRoute: ConvertRoute,
+  ExampleRoute: ExampleRoute,
+  FormatRoute: FormatRoute,
+  InspectRoute: InspectRoute,
+  MergeRoute: MergeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from "./router.tsx"
-import type { createStart } from "@tanstack/react-start"
-declare module "@tanstack/react-start" {
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
