@@ -280,6 +280,7 @@ function DownloadButton({
 }
 
 export function OutputPanel({
+  tool,
   id,
   label,
   description,
@@ -288,6 +289,7 @@ export function OutputPanel({
   error,
   errorTitle = "Unable to convert",
 }: {
+  tool: ToolName
   id: string
   label: string
   description?: string
@@ -304,8 +306,8 @@ export function OutputPanel({
         </CardTitle>
         {description ? <CardDescription>{description}</CardDescription> : null}
         <CardAction className="flex gap-2">
-          <CopyButton text={value} />
-          <DownloadButton text={value} filename={filename} />
+          <CopyButton tool={tool} text={value} />
+          <DownloadButton tool={tool} text={value} filename={filename} />
         </CardAction>
       </CardHeader>
       <CardContent>
