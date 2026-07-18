@@ -68,6 +68,8 @@ function ExamplePage() {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <EnvEditor
+          tool="example"
+          fileCount={1}
           id="example-input"
           label="Source ENV"
           description="Comments and blank lines are preserved unless sorted output is selected."
