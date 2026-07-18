@@ -43,7 +43,9 @@ VITE_POSTHOG_HOST=https://us.i.posthog.com
 PostHog records only six manual product events with bucketed counts. Autocapture,
 page events, session replay, heatmaps, error capture, and performance capture are
 disabled. ENV contents, keys, values, filenames, copied text, and raw error
-messages are never included.
+messages are never included. SDK-added page, browser, and session properties are
+also stripped; only the public project token, anonymous distinct ID, and the
+documented event properties are sent.
 
 ## Scripts
 

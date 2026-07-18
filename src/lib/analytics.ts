@@ -23,14 +23,17 @@ type AnalyticsEvents = {
   "tool error": { tool: ToolName; error_code: ToolErrorCode }
 }
 
-const EVENT_NAMES = new Set<keyof AnalyticsEvents>([
-  "tool opened",
-  "input added",
-  "tool completed",
-  "output copied",
-  "output downloaded",
-  "tool error",
-])
+const EVENT_PROPERTIES: {
+  [TEvent in keyof AnalyticsEvents]: readonly (keyof AnalyticsEvents[TEvent])[]
+} = {
+  "tool opened": ["tool"],
+  "input added": ["tool", "source", "file_count"],
+  "tool completed": ["tool", "variable_count", "result"],
+  "output copied": ["tool"],
+  "output downloaded": ["tool"],
+  "tool error": ["tool", "error_code"],
+}
+const REQUIRED_POSTHOG_PROPERTIES = ["token", "distinct_id"] as const
 
 export const POSTHOG_API_KEY = import.meta.env.VITE_POSTHOG_KEY
 export const POSTHOG_OPTIONS = {
@@ -50,10 +53,22 @@ export const POSTHOG_OPTIONS = {
   person_profiles: "identified_only",
   persistence: "localStorage",
   respect_dnt: true,
-  before_send: (event) =>
-    event && EVENT_NAMES.has(event.event as keyof AnalyticsEvents)
-      ? event
-      : null,
+  before_send: (event) => {
+    if (!event) return null
+
+    const eventName = event.event as keyof AnalyticsEvents
+    if (!Object.hasOwn(EVENT_PROPERTIES, eventName)) return null
+
+    const properties = event.properties
+    return {
+      ...event,
+      properties: Object.fromEntries(
+        [...REQUIRED_POSTHOG_PROPERTIES, ...EVENT_PROPERTIES[eventName]]
+          .filter((property) => properties[property] !== undefined)
+          .map((property) => [property, properties[property]])
+      ),
+    }
+  },
 } satisfies Partial<PostHogConfig>
 
 export function useAnalytics() {

@@ -64,10 +64,36 @@ it("allows only manual privacy-safe analytics", async () => {
     respect_dnt: true,
   })
 
-  const beforeSend = config.before_send as (event: { event: string }) => unknown
-  expect(beforeSend({ event: "$pageview" })).toBeNull()
-  expect(beforeSend({ event: "tool completed" })).toEqual({
+  const beforeSend = config.before_send as (event: {
+    event: string
+    properties: Record<string, unknown>
+  }) => { event: string; properties: Record<string, unknown> } | null
+  expect(beforeSend({ event: "$pageview", properties: {} })).toBeNull()
+  expect(
+    beforeSend({
+      event: "tool completed",
+      properties: {
+        token: "phc_test",
+        distinct_id: "anonymous-user",
+        tool: "format",
+        variable_count: "2-10",
+        result: "success",
+        $session_id: "session-id",
+        $window_id: "window-id",
+        $current_url: "https://envkit.damnlabs.com/format",
+        $browser: "Chrome",
+        editor_state: "SECRET=value",
+      },
+    })
+  ).toEqual({
     event: "tool completed",
+    properties: {
+      token: "phc_test",
+      distinct_id: "anonymous-user",
+      tool: "format",
+      variable_count: "2-10",
+      result: "success",
+    },
   })
 })
 
