@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
+import { useToolCompletion } from "@/lib/analytics"
 import { mergeEnvs, parseEnv } from "@/lib/env"
 import type { MergeResolution, MergeWinner } from "@/lib/env"
 import { seoMeta } from "@/lib/seo"
@@ -43,9 +44,19 @@ function MergePage() {
       parseEnv(right).duplicateKeys.length,
     [left, right]
   )
+  const inputCount =
+    Number(Boolean(left.trim())) + Number(Boolean(right.trim()))
+  useToolCompletion({
+    tool: "merge",
+    operation: `${left}\0${right}`,
+    active: Boolean(left.trim() && right.trim() && !result.unresolved),
+    variableCount: result.total,
+    errorCode: result.error ? "invalid_input" : undefined,
+  })
 
   return (
     <ToolPage
+      tool="merge"
       title="Merge & Clean"
       description="Combine two ENV files into one sorted result. Duplicate keys are collapsed and your chosen file wins when values conflict."
     >
