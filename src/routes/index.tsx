@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { ArrowUpRightIcon } from "lucide-react"
 
+import { GithubIcon } from "@/components/github-icon"
 import {
   Card,
   CardContent,
@@ -89,23 +90,34 @@ function HomePage() {
 
       <footer className="flex flex-col gap-1 border-t pt-4 text-[11px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
         <p>{SITE_CONFIG.name} processes every file locally in this tab.</p>
-        <p>
-          Built for the community by{" "}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <p>
+            Built for the community by{" "}
+            <a
+              href={SITE_CONFIG.damnLabs.url}
+              className="underline underline-offset-3 hover:text-foreground"
+            >
+              {SITE_CONFIG.damnLabs.name}
+            </a>
+            , a{" "}
+            <a
+              href={SITE_CONFIG.pixelactStudio.url}
+              className="underline underline-offset-3 hover:text-foreground"
+            >
+              {SITE_CONFIG.pixelactStudio.name}
+            </a>{" "}
+            product.
+          </p>
           <a
-            href={SITE_CONFIG.damnLabs.url}
-            className="underline underline-offset-3 hover:text-foreground"
+            href={SITE_CONFIG.github.url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 underline underline-offset-3 hover:text-foreground"
           >
-            {SITE_CONFIG.damnLabs.name}
+            <GithubIcon className="size-3" />
+            {SITE_CONFIG.github.name}
           </a>
-          , a{" "}
-          <a
-            href={SITE_CONFIG.pixelactStudio.url}
-            className="underline underline-offset-3 hover:text-foreground"
-          >
-            {SITE_CONFIG.pixelactStudio.name}
-          </a>{" "}
-          product.
-        </p>
+        </div>
       </footer>
     </main>
   )
