@@ -203,9 +203,11 @@ export function EnvEditor({
 }
 
 export function CopyButton({
+  tool,
   text,
   label = "Copy",
 }: {
+  tool: ToolName
   text: string
   label?: string
 }) {
@@ -215,8 +217,10 @@ export function CopyButton({
     try {
       await copyText(text)
       setStatus("copied")
+      track("output copied", { tool })
     } catch {
       setStatus("error")
+      track("tool error", { tool, error_code: "copy_failed" })
     }
   }
 
