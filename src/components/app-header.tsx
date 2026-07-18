@@ -2,6 +2,7 @@ import { useRef, useState } from "react"
 import { Link } from "@tanstack/react-router"
 import { MenuIcon } from "lucide-react"
 
+import { GithubIcon } from "@/components/github-icon"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { buttonVariants } from "@/components/ui/button"
 import {
@@ -78,6 +79,16 @@ export function AppHeader() {
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
+
+        <a
+          href={SITE_CONFIG.github.url}
+          target="_blank"
+          rel="noreferrer"
+          className={buttonVariants({ variant: "ghost", size: "icon" })}
+        >
+          <GithubIcon />
+          <span className="sr-only">View {SITE_CONFIG.name} on GitHub</span>
+        </a>
 
         <ThemeToggle />
 

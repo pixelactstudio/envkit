@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
+import { useToolCompletion } from "@/lib/analytics"
 import { mergeEnvs, parseEnv } from "@/lib/env"
 import type { MergeResolution, MergeWinner } from "@/lib/env"
 import { seoMeta } from "@/lib/seo"
@@ -43,9 +44,19 @@ function MergePage() {
       parseEnv(right).duplicateKeys.length,
     [left, right]
   )
+  const inputCount =
+    Number(Boolean(left.trim())) + Number(Boolean(right.trim()))
+  useToolCompletion({
+    tool: "merge",
+    operation: `${left}\0${right}`,
+    active: Boolean(left.trim() && right.trim() && !result.unresolved),
+    variableCount: result.total,
+    errorCode: result.error ? "invalid_input" : undefined,
+  })
 
   return (
     <ToolPage
+      tool="merge"
       title="Merge & Clean"
       description="Combine two ENV files into one sorted result. Duplicate keys are collapsed and your chosen file wins when values conflict."
     >
@@ -79,6 +90,8 @@ function MergePage() {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <EnvEditor
+          tool="merge"
+          fileCount={inputCount + (left.trim() ? 0 : 1)}
           id="merge-left"
           label="File A"
           description={
@@ -92,6 +105,8 @@ function MergePage() {
           onChange={setLeft}
         />
         <EnvEditor
+          tool="merge"
+          fileCount={inputCount + (right.trim() ? 0 : 1)}
           id="merge-right"
           label="File B"
           description={
@@ -157,6 +172,7 @@ function MergePage() {
       ) : null}
       <div className="mt-4">
         <OutputPanel
+          tool="merge"
           id="merge-output"
           label="Merged ENV"
           description="Keys are sorted alphabetically for a stable, reviewable result."

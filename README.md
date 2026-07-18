@@ -27,11 +27,25 @@ Requirements: Node.js and pnpm.
 git clone https://github.com/pixelactstudio/envkit.git
 cd envkit
 pnpm install
+cp .env.example .env.local
 pnpm dev
 ```
 
 The development server runs at [http://localhost:3000](http://localhost:3000).
-No environment variables are required to run the app.
+Analytics is disabled unless `VITE_POSTHOG_KEY` is set. The host is optional and
+defaults to PostHog US Cloud:
+
+```bash
+VITE_POSTHOG_KEY=phc_your_project_key
+VITE_POSTHOG_HOST=https://us.i.posthog.com
+```
+
+PostHog records only six manual product events with bucketed counts. Autocapture,
+page events, session replay, heatmaps, error capture, and performance capture are
+disabled. ENV contents, keys, values, filenames, copied text, and raw error
+messages are never included. SDK-added page, browser, and session properties are
+also stripped; only the public project token, anonymous distinct ID, and the
+documented event properties are sent.
 
 ## Scripts
 
@@ -69,5 +83,6 @@ chore: update dependencies
 
 Active development happens on `dev`; `main` is the release branch.
 
-EnvKit is a [Daym Labs](https://damnlabs.com) product by
+EnvKit is available at [envkit.damnlabs.com](https://envkit.damnlabs.com). It is
+a [Damn Labs](https://damnlabs.com) product by
 [Pixelact Studio](https://pixelactstudio.com).
