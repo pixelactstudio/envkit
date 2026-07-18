@@ -27,6 +27,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { INITIAL_COMPARE_FILES } from "@/constants/env"
+import { useAnalytics, useToolCompletion } from "@/lib/analytics"
 import { copyText } from "@/lib/clipboard"
 import { compareManyEnvs, formatEnv, parseEnv } from "@/lib/env"
 import type { EnvEntry } from "@/lib/env"
@@ -46,6 +47,7 @@ export const Route = createFileRoute("/compare")({
 })
 
 function KeyList({ keys, empty }: { keys: string[]; empty: string }) {
+  const track = useAnalytics()
   const [copied, setCopied] = useState("")
 
   return keys.length ? (
@@ -61,8 +63,13 @@ function KeyList({ keys, empty }: { keys: string[]; empty: string }) {
                   try {
                     await copyText(key)
                     setCopied(key)
+                    track("output copied", { tool: "compare" })
                   } catch {
                     setCopied("")
+                    track("tool error", {
+                      tool: "compare",
+                      error_code: "copy_failed",
+                    })
                   }
                 }}
               />
@@ -145,6 +152,17 @@ function ComparePage() {
     [files]
   )
   const hasInput = files.some(({ content }) => content.trim())
+  const inputCount = files.filter(({ content }) => content.trim()).length
+  const hasError = documents.some((document) =>
+    document.issues.some(({ severity }) => severity === "error")
+  )
+  useToolCompletion({
+    tool: "compare",
+    operation: files.map(({ content }) => content).join("\0"),
+    active: inputCount >= 2,
+    variableCount: comparison.rows.length,
+    errorCode: hasError ? "invalid_input" : undefined,
+  })
 
   function updateFile(id: number, update: Partial<CompareFile>) {
     setFiles((current) =>
@@ -164,6 +182,7 @@ function ComparePage() {
 
   return (
     <ToolPage
+      tool="compare"
       title="Compare ENV files"
       description="Compare two or more environments to find missing keys and value differences. Values stay hidden until you reveal them."
     >
@@ -181,6 +200,8 @@ function ComparePage() {
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,22rem),1fr))] gap-4">
         {files.map((file, index) => (
           <EnvEditor
+            tool="compare"
+            fileCount={inputCount + (file.content.trim() ? 0 : 1)}
             key={file.id}
             id={`compare-${file.id}`}
             label={file.name}
@@ -247,6 +268,7 @@ function ComparePage() {
                 <div className="flex flex-wrap gap-2">
                   {files.map((file, index) => (
                     <CopyButton
+                      tool="compare"
                       key={file.id}
                       text={formatEnv(comparison.missingByFile[index])}
                       label={`Copy ${comparison.missingByFile[index].length} for ${file.name}`}

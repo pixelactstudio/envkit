@@ -4,6 +4,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import { EnvEditor, OutputPanel, ToolPage } from "@/components/tool-ui"
 import { Badge } from "@/components/ui/badge"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
+import { useToolCompletion } from "@/lib/analytics"
 import { generateExample, parseEnv } from "@/lib/env"
 import { seoMeta } from "@/lib/seo"
 
@@ -25,9 +26,18 @@ function ExamplePage() {
     () => generateExample(source, mode === "sort"),
     [source, mode]
   )
+  const hasError = document.issues.some(({ severity }) => severity === "error")
+  useToolCompletion({
+    tool: "example",
+    operation: source,
+    active: Boolean(source.trim() && (document.entries.length || hasError)),
+    variableCount: document.entries.length,
+    errorCode: hasError ? "invalid_input" : undefined,
+  })
 
   return (
     <ToolPage
+      tool="example"
       title=".env.example Generator"
       description="Turn a real ENV file into a shareable template. Assignment values are removed locally before you copy or download anything."
     >
@@ -58,6 +68,8 @@ function ExamplePage() {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <EnvEditor
+          tool="example"
+          fileCount={1}
           id="example-input"
           label="Source ENV"
           description="Comments and blank lines are preserved unless sorted output is selected."
@@ -65,6 +77,7 @@ function ExamplePage() {
           onChange={setSource}
         />
         <OutputPanel
+          tool="example"
           id="example-output"
           label="Safe template"
           description="Review comments for manually written secrets before committing."

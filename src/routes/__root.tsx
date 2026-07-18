@@ -1,11 +1,13 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
 import { TanStackDevtools } from "@tanstack/react-devtools"
+import { PostHogProvider } from "@posthog/react"
 import { ThemeProvider } from "next-themes"
 
 import { AppHeader } from "@/components/app-header"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { SITE_CONFIG } from "@/constants/site"
+import { POSTHOG_API_KEY, POSTHOG_OPTIONS } from "@/lib/analytics"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
@@ -33,7 +35,7 @@ export const Route = createRootRoute({
       },
       {
         name: "author",
-        content: `${SITE_CONFIG.daymLabs.name}, ${SITE_CONFIG.pixelactStudio.name}`,
+        content: `${SITE_CONFIG.damnLabs.name}, ${SITE_CONFIG.pixelactStudio.name}`,
       },
       {
         name: "application-name",
@@ -59,6 +61,10 @@ export const Route = createRootRoute({
       {
         property: "og:site_name",
         content: SITE_CONFIG.name,
+      },
+      {
+        property: "og:url",
+        content: SITE_CONFIG.url,
       },
       {
         name: "twitter:card",
@@ -109,23 +115,33 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const app = (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem={false}
+      storageKey="envkit-theme"
+    >
+      <TooltipProvider delay={1200} timeout={0}>
+        <AppHeader />
+        {children}
+      </TooltipProvider>
+    </ThemeProvider>
+  )
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body className="min-h-svh bg-background text-foreground antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem={false}
-          storageKey="envkit-theme"
-        >
-          <TooltipProvider delay={1200} timeout={0}>
-            <AppHeader />
-            {children}
-          </TooltipProvider>
-        </ThemeProvider>
+        {POSTHOG_API_KEY ? (
+          <PostHogProvider apiKey={POSTHOG_API_KEY} options={POSTHOG_OPTIONS}>
+            {app}
+          </PostHogProvider>
+        ) : (
+          app
+        )}
         <TanStackDevtools
           config={{
             position: "bottom-right",

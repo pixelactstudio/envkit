@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import { useToolCompletion } from "@/lib/analytics"
 import { parseEnv } from "@/lib/env"
 import { seoMeta } from "@/lib/seo"
 
@@ -32,14 +33,26 @@ function InspectPage() {
   const warnings = document.issues.filter(
     ({ severity }) => severity === "warning"
   )
+  useToolCompletion({
+    tool: "inspect",
+    operation: source,
+    active: Boolean(
+      source.trim() && (document.entries.length || errors.length)
+    ),
+    variableCount: document.entries.length,
+    errorCode: errors.length ? "invalid_input" : undefined,
+  })
 
   return (
     <ToolPage
+      tool="inspect"
       title="ENV Inspector"
       description="Check an ENV file for malformed assignments, duplicate keys, empty values, missing references, and risky whitespace."
     >
       <div className="space-y-4">
         <EnvEditor
+          tool="inspect"
+          fileCount={1}
           id="inspect-input"
           label="ENV file"
           description={`${document.entries.length} valid variables detected`}

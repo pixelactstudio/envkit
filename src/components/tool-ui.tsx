@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import type { DragEvent, ReactNode } from "react"
 import { Link } from "@tanstack/react-router"
 import {
@@ -22,18 +22,29 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { fileCountBucket, useAnalytics } from "@/lib/analytics"
+import type { ToolName } from "@/lib/analytics"
 import { copyText } from "@/lib/clipboard"
 import { cn } from "@/lib/utils"
 
 export function ToolPage({
+  tool,
   title,
   description,
   children,
 }: {
+  tool: ToolName
   title: string
   description: string
   children: ReactNode
 }) {
+  const track = useAnalytics()
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => track("tool opened", { tool }))
+    return () => window.clearTimeout(timeout)
+  }, [tool, track])
+
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       <Link
@@ -57,6 +68,8 @@ export function ToolPage({
 }
 
 export function EnvEditor({
+  tool,
+  fileCount,
   id,
   label,
   description,
@@ -67,6 +80,8 @@ export function EnvEditor({
   action,
   onFileLoad,
 }: {
+  tool: ToolName
+  fileCount: number
   id: string
   label: string
   description?: string
@@ -77,17 +92,24 @@ export function EnvEditor({
   action?: ReactNode
   onFileLoad?: (name: string) => void
 }) {
+  const track = useAnalytics()
   const [error, setError] = useState("")
   const [dragging, setDragging] = useState(false)
 
-  async function readFile(file?: File) {
+  async function readFile(file: File | undefined, source: "file" | "drop") {
     if (!file) return
     try {
       onChange(await file.text())
       onFileLoad?.(file.name)
       setError("")
+      track("input added", {
+        tool,
+        source,
+        file_count: fileCountBucket(fileCount),
+      })
     } catch {
       setError("The selected file could not be read.")
+      track("tool error", { tool, error_code: "file_read_failed" })
     }
   }
 
@@ -115,7 +137,7 @@ export function EnvEditor({
       onDrop={(event) => {
         event.preventDefault()
         setDragging(false)
-        void readFile(event.dataTransfer.files[0])
+        void readFile(event.dataTransfer.files[0], "drop")
       }}
     >
       {dragging ? (
@@ -155,6 +177,13 @@ export function EnvEditor({
           id={id}
           value={value}
           onChange={(event) => onChange(event.target.value)}
+          onPaste={() =>
+            track("input added", {
+              tool,
+              source: "paste",
+              file_count: fileCountBucket(fileCount),
+            })
+          }
           placeholder={placeholder}
           spellCheck={false}
           wrap="soft"
@@ -168,7 +197,7 @@ export function EnvEditor({
             accept={accept}
             className="sr-only"
             onChange={(event) => {
-              void readFile(event.target.files?.[0])
+              void readFile(event.target.files?.[0], "file")
               event.currentTarget.value = ""
             }}
           />
@@ -180,20 +209,25 @@ export function EnvEditor({
 }
 
 export function CopyButton({
+  tool,
   text,
   label = "Copy",
 }: {
+  tool: ToolName
   text: string
   label?: string
 }) {
+  const track = useAnalytics()
   const [status, setStatus] = useState<"idle" | "copied" | "error">("idle")
 
   async function copy() {
     try {
       await copyText(text)
       setStatus("copied")
+      track("output copied", { tool })
     } catch {
       setStatus("error")
+      track("tool error", { tool, error_code: "copy_failed" })
     }
   }
 
@@ -220,12 +254,16 @@ export function CopyButton({
 }
 
 function DownloadButton({
+  tool,
   text,
   filename,
 }: {
+  tool: ToolName
   text: string
   filename: string
 }) {
+  const track = useAnalytics()
+
   function download() {
     const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }))
     const anchor = document.createElement("a")
@@ -233,6 +271,7 @@ function DownloadButton({
     anchor.download = filename
     anchor.click()
     URL.revokeObjectURL(url)
+    track("output downloaded", { tool })
   }
 
   return (
@@ -250,6 +289,7 @@ function DownloadButton({
 }
 
 export function OutputPanel({
+  tool,
   id,
   label,
   description,
@@ -258,6 +298,7 @@ export function OutputPanel({
   error,
   errorTitle = "Unable to convert",
 }: {
+  tool: ToolName
   id: string
   label: string
   description?: string
@@ -274,8 +315,8 @@ export function OutputPanel({
         </CardTitle>
         {description ? <CardDescription>{description}</CardDescription> : null}
         <CardAction className="flex gap-2">
-          <CopyButton text={value} />
-          <DownloadButton text={value} filename={filename} />
+          <CopyButton tool={tool} text={value} />
+          <DownloadButton tool={tool} text={value} filename={filename} />
         </CardAction>
       </CardHeader>
       <CardContent>

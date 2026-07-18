@@ -10,8 +10,7 @@ const config = defineConfig({
     devtools(),
     tailwindcss(),
     tanstackStart({
-      spa: { enabled: true },
-      prerender: { enabled: true, crawlLinks: true },
+      prerender: { enabled: true, crawlLinks: true, failOnError: true },
     }),
     viteReact(),
   ],
