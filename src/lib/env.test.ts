@@ -79,4 +79,25 @@ describe("ENV helpers", () => {
       "JSON number 9007199254740993 is outside the safe integer range"
     )
   })
+
+  it("handles quoted multiline values across every output path", () => {
+    const value =
+      "-----BEGIN PRIVATE KEY-----\nprivate-key-data\n-----END PRIVATE KEY-----"
+    const source = `PRIVATE_KEY="${value}"\nPORT=3000`
+    const encoded = `PRIVATE_KEY=${JSON.stringify(value)}`
+
+    const document = parseEnv(source)
+    expect(document.issues).toEqual([])
+    expect(document.entries[0]).toEqual({ key: "PRIVATE_KEY", value, line: 1 })
+    expect(formatEnvFile(source, "smart", false, false).output).toBe(
+      `${encoded}\nPORT=3000`
+    )
+    expect(
+      JSON.parse(convertEnvironment(source, "env", "json")).PRIVATE_KEY
+    ).toBe(value)
+    expect(mergeEnvs(source, "HOST=localhost")).toMatchObject({
+      error: "",
+      output: `HOST=localhost\nPORT=3000\n${encoded}`,
+    })
+  })
 })

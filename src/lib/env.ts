@@ -60,12 +60,14 @@ export function parseEnv(source: string): EnvDocument {
   const entries: EnvEntry[] = []
   const issues: EnvIssue[] = []
   const counts = new Map<string, number>()
+  const lines = source.split(/\r?\n/)
 
-  source.split(/\r?\n/).forEach((rawLine, index) => {
+  for (let index = 0; index < lines.length; index += 1) {
+    const rawLine = lines[index]
     const line = index + 1
     const trimmed = rawLine.trim()
 
-    if (!trimmed || trimmed.startsWith("#")) return
+    if (!trimmed || trimmed.startsWith("#")) continue
 
     const parsed = assignment(rawLine)
 
@@ -75,7 +77,7 @@ export function parseEnv(source: string): EnvDocument {
         line,
         message: "Expected a portable KEY=value assignment.",
       })
-      return
+      continue
     }
 
     if (rawLine !== trimmed) {
@@ -88,17 +90,23 @@ export function parseEnv(source: string): EnvDocument {
       })
     }
 
-    const quote = parsed.rawValue[0]
-    if ((quote === '"' || quote === "'") && !parsed.rawValue.endsWith(quote)) {
+    let rawValue = parsed.rawValue
+    const quote = rawValue[0]
+    if (quote === '"' || quote === "'") {
+      while (!rawValue.endsWith(quote) && index + 1 < lines.length) {
+        rawValue += `\n${lines[(index += 1)]}`
+      }
+    }
+    if ((quote === '"' || quote === "'") && !rawValue.endsWith(quote)) {
       issues.push({
         severity: "error",
         line,
         key: parsed.key,
-        message: "The quoted value is not closed on this line.",
+        message: "The quoted value is not closed.",
       })
     }
 
-    const value = decodeValue(parsed.rawValue)
+    const value = decodeValue(rawValue)
     entries.push({ key: parsed.key, value, line })
 
     const count = (counts.get(parsed.key) ?? 0) + 1
@@ -120,7 +128,7 @@ export function parseEnv(source: string): EnvDocument {
         message: "This variable has an empty value.",
       })
     }
-  })
+  }
 
   const keys = new Set(entries.map(({ key }) => key))
   entries.forEach((entry) => {
