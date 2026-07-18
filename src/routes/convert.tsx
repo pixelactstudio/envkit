@@ -5,7 +5,8 @@ import { ArrowRightIcon } from "lucide-react"
 import { EnvEditor, OutputPanel, ToolPage } from "@/components/tool-ui"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { ENV_OUTPUT_FILENAMES } from "@/constants/env"
-import { convertEnvironment } from "@/lib/env"
+import { useToolCompletion } from "@/lib/analytics"
+import { convertEnvironment, parseEnv } from "@/lib/env"
 import type { DockerValueMode, EnvFormat } from "@/lib/env"
 import { seoMeta } from "@/lib/seo"
 
@@ -29,6 +30,7 @@ function ConvertPage() {
       return {
         value: convertEnvironment(source, input, output, dockerMode),
         error: "",
+        errorCode: undefined,
       }
     } catch (error) {
       return {
@@ -37,12 +39,26 @@ function ConvertPage() {
           error instanceof Error
             ? error.message
             : "The input could not be converted.",
+        errorCode: "invalid_input" as const,
       }
     }
   }, [source, input, output, dockerMode])
+  const variableCount = useMemo(() => {
+    if (!source.trim() || result.error) return 0
+    if (input === "env") return parseEnv(source).entries.length
+    return Object.keys(JSON.parse(source) as Record<string, unknown>).length
+  }, [input, result.error, source])
+  useToolCompletion({
+    tool: "convert",
+    operation: source,
+    active: Boolean(source.trim()),
+    variableCount,
+    errorCode: result.errorCode,
+  })
 
   return (
     <ToolPage
+      tool="convert"
       title="Format Converter"
       description="Convert a flat ENV or JSON object into normalized ENV, JSON, shell exports, or a Docker Compose environment block."
     >
