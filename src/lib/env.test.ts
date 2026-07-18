@@ -62,5 +62,13 @@ describe("ENV helpers", () => {
     expect(
       convertEnvironment("DISCORD_API_ID=123", "env", "docker", "references")
     ).toBe("environment:\n  DISCORD_API_ID: ${DISCORD_API_ID}")
+    expect(
+      convertEnvironment(
+        "SECRET=${HOST_SECRET}",
+        "env",
+        "docker",
+        "values"
+      )
+    ).toBe('environment:\n  SECRET: "$${HOST_SECRET}"')
   })
 })

@@ -471,7 +471,7 @@ export function convertEnvironment(
     ...sorted.map(({ key, value }) =>
       dockerMode === "references"
         ? `  ${key}: \${${key}}`
-        : `  ${key}: ${JSON.stringify(value)}`
+        : `  ${key}: ${JSON.stringify(value.replaceAll("$", () => "$$"))}`
     ),
   ].join("\n")
 }
