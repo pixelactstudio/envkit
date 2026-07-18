@@ -172,6 +172,7 @@ function MergePage() {
       ) : null}
       <div className="mt-4">
         <OutputPanel
+          tool="merge"
           id="merge-output"
           label="Merged ENV"
           description="Keys are sorted alphabetically for a stable, reviewable result."
