@@ -247,9 +247,11 @@ export function CopyButton({
 }
 
 function DownloadButton({
+  tool,
   text,
   filename,
 }: {
+  tool: ToolName
   text: string
   filename: string
 }) {
@@ -260,6 +262,7 @@ function DownloadButton({
     anchor.download = filename
     anchor.click()
     URL.revokeObjectURL(url)
+    track("output downloaded", { tool })
   }
 
   return (
