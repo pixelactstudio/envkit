@@ -34,18 +34,24 @@ const EVENT_PROPERTIES: {
   "tool error": ["tool", "error_code"],
 }
 const REQUIRED_POSTHOG_PROPERTIES = ["token", "distinct_id"] as const
+const AUTOMATIC_EVENTS = new Set([
+  "$pageview",
+  "$pageleave",
+  "$web_vitals",
+  "$$heatmap",
+])
 
 export const POSTHOG_API_KEY = import.meta.env.VITE_POSTHOG_KEY
 export const POSTHOG_OPTIONS = {
   api_host: import.meta.env.VITE_POSTHOG_HOST || "https://us.i.posthog.com",
   defaults: "2026-05-30",
   autocapture: false,
-  capture_pageview: false,
-  capture_pageleave: false,
+  capture_pageview: "history_change",
+  capture_pageleave: true,
   capture_dead_clicks: false,
   capture_exceptions: false,
-  capture_heatmaps: false,
-  capture_performance: false,
+  capture_heatmaps: true,
+  capture_performance: true,
   disable_session_recording: true,
   disable_surveys: true,
   advanced_disable_flags: true,
@@ -55,6 +61,7 @@ export const POSTHOG_OPTIONS = {
   respect_dnt: true,
   before_send: (event) => {
     if (!event) return null
+    if (AUTOMATIC_EVENTS.has(event.event)) return event
 
     const eventName = event.event as keyof AnalyticsEvents
     if (!Object.hasOwn(EVENT_PROPERTIES, eventName)) return null
