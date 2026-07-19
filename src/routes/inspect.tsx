@@ -14,15 +14,15 @@ import {
 } from "@/components/ui/card"
 import { useToolCompletion } from "@/lib/analytics"
 import { parseEnv } from "@/lib/env"
-import { seoMeta } from "@/lib/seo"
+import { seoHead } from "@/lib/seo"
 
 export const Route = createFileRoute("/inspect")({
-  head: () => ({
-    meta: seoMeta(
+  head: () =>
+    seoHead(
       "Inspect an ENV file",
-      "Validate .env syntax and find duplicate keys, empty values, missing references, and risky whitespace locally."
+      "Validate .env syntax and find duplicate keys, empty values, missing references, and risky whitespace locally.",
+      "/inspect"
     ),
-  }),
   component: InspectPage,
 })
 
