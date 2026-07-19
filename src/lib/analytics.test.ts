@@ -51,12 +51,12 @@ it("allows only manual privacy-safe analytics", async () => {
   expect(config).toMatchObject({
     defaults: "2026-05-30",
     autocapture: false,
-    capture_pageview: false,
-    capture_pageleave: false,
+    capture_pageview: "history_change",
+    capture_pageleave: true,
     capture_dead_clicks: false,
     capture_exceptions: false,
-    capture_heatmaps: false,
-    capture_performance: false,
+    capture_heatmaps: true,
+    capture_performance: true,
     disable_session_recording: true,
     disable_surveys: true,
     advanced_disable_flags: true,
@@ -68,7 +68,11 @@ it("allows only manual privacy-safe analytics", async () => {
     event: string
     properties: Record<string, unknown>
   }) => { event: string; properties: Record<string, unknown> } | null
-  expect(beforeSend({ event: "$pageview", properties: {} })).toBeNull()
+  const pageview = {
+    event: "$pageview",
+    properties: { $current_url: "https://envkit.damnlabs.com/format" },
+  }
+  expect(beforeSend(pageview)).toBe(pageview)
   expect(
     beforeSend({
       event: "tool completed",
