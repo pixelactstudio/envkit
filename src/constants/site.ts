@@ -1,5 +1,5 @@
 export const SITE_CONFIG = {
-  name: "ENVSIFT",
+  name: "EnvSift",
   url: "https://envsift.damnlabs.com",
   logo: "/envsift-mark.svg",
   socialImage: "https://damnlabs.com/envsift-cover.png",

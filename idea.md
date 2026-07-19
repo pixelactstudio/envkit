@@ -1,8 +1,8 @@
-# ENVSIFT Product Idea
+# EnvSift Product Idea
 
 ## Summary
 
-ENVSIFT starts as a collection of free, client-side environment-variable tools and can grow into an authenticated environment configuration intelligence platform.
+EnvSift starts as a collection of free, client-side environment-variable tools and can grow into an authenticated environment configuration intelligence platform.
 
 The authenticated product should help developers answer:
 
@@ -12,7 +12,7 @@ The authenticated product should help developers answer:
 - When did the environment contract change, and who changed it?
 - Can the repository documentation be updated safely through a reviewed pull request?
 
-ENVSIFT should not become a traditional secret vault initially. Secret values should remain on the developer's machine or existing deployment provider.
+EnvSift should not become a traditional secret vault initially. Secret values should remain on the developer's machine or existing deployment provider.
 
 ## Product principles
 
@@ -58,7 +58,7 @@ An environment contract is an `.env.example` with structured metadata. It docume
 
 ## Three sources of environment truth
 
-No single scanner can see the complete environment configuration. ENVSIFT combines three sources.
+No single scanner can see the complete environment configuration. EnvSift combines three sources.
 
 ### 1. GitHub repository scan
 
@@ -176,10 +176,10 @@ AI output remains a suggestion until a user accepts it.
 
 ## Pull-request workflow
 
-ENVSIFT can generate repository changes such as:
+EnvSift can generate repository changes such as:
 
 - A new or updated `.env.example`
-- An ENVSIFT project configuration file
+- An EnvSift project configuration file
 - Missing variable documentation
 - Comments and grouping improvements
 - Removal of confirmed stale entries
@@ -201,16 +201,16 @@ Direct commits to the default branch are deliberately excluded.
 
 GitHub identity and repository permissions can provide much of the initial collaboration model.
 
-ENVSIFT can add:
+EnvSift can add:
 
 - Project members and simple owner/editor/viewer access
 - Comments and ownership on variable definitions
 - Scan attribution
 - Health-report history
 - Contract change summaries
-- Links from ENVSIFT changes to Git commits and pull requests
+- Links from EnvSift changes to Git commits and pull requests
 
-Git remains the version history for generated repository files. ENVSIFT stores scan snapshots and dashboard activity instead of building a second source-control system.
+Git remains the version history for generated repository files. EnvSift stores scan snapshots and dashboard activity instead of building a second source-control system.
 
 ## CI checks
 
@@ -245,7 +245,7 @@ Built-in detection rules and presets may help explain common variables for frame
 
 ## Explicitly deferred
 
-ENVSIFT should not initially provide:
+EnvSift should not initially provide:
 
 - A hosted secret vault
 - Plaintext secret storage
@@ -256,7 +256,7 @@ ENVSIFT should not initially provide:
 - Kubernetes secret management
 - AI access to secret values
 
-These features change ENVSIFT from a configuration intelligence product into security-critical infrastructure.
+These features change EnvSift from a configuration intelligence product into security-critical infrastructure.
 
 ## Ideal product loop
 
@@ -273,6 +273,6 @@ Use a free local ENV tool
 
 ## Product position
 
-ENVSIFT is not another place to store secrets.
+EnvSift is not another place to store secrets.
 
 It is the place where a team understands which environment variables an application needs, where they are expected, whether each environment is healthy, and how that contract changes over time.

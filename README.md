@@ -1,10 +1,10 @@
 <div align="center">
-  <img src="./public/envsift-mark.svg" alt="ENVSIFT" width="56" height="56" />
-  <h1>ENVSIFT</h1>
+  <img src="./public/envsift-mark.svg" alt="EnvSift" width="56" height="56" />
+  <h1>EnvSift</h1>
   <p>Private, client-side tools for working with environment variables.</p>
 </div>
 
-ENVSIFT helps developers compare, inspect, format, merge, redact, and convert
+EnvSift helps developers compare, inspect, format, merge, redact, and convert
 `.env` files without sending their contents to a server. Pasted values and
 local files are processed in the browser.
 
@@ -83,11 +83,11 @@ chore: update dependencies
 
 Active development happens on `dev`; `main` is the release branch.
 
-ENVSIFT is available at [envsift.damnlabs.com](https://envsift.damnlabs.com). It is
+EnvSift is available at [envsift.damnlabs.com](https://envsift.damnlabs.com). It is
 a [Damn Labs](https://damnlabs.com) product by
 [Pixelact Studio](https://pixelactstudio.com).
 
 ## License
 
-ENVSIFT is open-source software licensed under the
+EnvSift is open-source software licensed under the
 [Apache License 2.0](./LICENSE).

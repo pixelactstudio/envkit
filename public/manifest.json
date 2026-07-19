@@ -1,6 +1,6 @@
 {
-  "short_name": "ENVSIFT",
-  "name": "ENVSIFT — Private ENV tools for developers",
+  "short_name": "EnvSift",
+  "name": "EnvSift — Private ENV tools for developers",
   "icons": [
     {
       "src": "/envsift-mark.svg",
