@@ -1,9 +1,9 @@
 {
-  "short_name": "EnvKit",
-  "name": "EnvKit — Private ENV tools for developers",
+  "short_name": "EnvSift",
+  "name": "EnvSift — Private ENV tools for developers",
   "icons": [
     {
-      "src": "/envkit-mark.svg",
+      "src": "/envsift-mark.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

@@ -120,7 +120,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       attribute="class"
       defaultTheme="dark"
       enableSystem={false}
-      storageKey="envkit-theme"
+      storageKey="envsift-theme"
     >
       <TooltipProvider delay={1200} timeout={0}>
         <AppHeader />

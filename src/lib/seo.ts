@@ -18,7 +18,7 @@ export function seoHead(title: string, description: string, path: string) {
       { property: "og:image:height", content: "630" },
       {
         property: "og:image:alt",
-        content: "EnvKit logo on a light background",
+        content: "EnvSift logo on a light background",
       },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: fullTitle },
@@ -26,7 +26,7 @@ export function seoHead(title: string, description: string, path: string) {
       { name: "twitter:image", content: SITE_CONFIG.socialImage },
       {
         name: "twitter:image:alt",
-        content: "EnvKit logo on a light background",
+        content: "EnvSift logo on a light background",
       },
     ],
     links: [{ rel: "canonical", href: url }],
