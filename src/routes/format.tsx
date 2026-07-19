@@ -7,15 +7,15 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { useToolCompletion } from "@/lib/analytics"
 import { formatEnvFile, parseEnv } from "@/lib/env"
 import type { EnvQuoteMode } from "@/lib/env"
-import { seoMeta } from "@/lib/seo"
+import { seoHead } from "@/lib/seo"
 
 export const Route = createFileRoute("/format")({
-  head: () => ({
-    meta: seoMeta(
+  head: () =>
+    seoHead(
       "Format ENV files",
-      "Format .env files with consistent quotes, ordering, and duplicate removal without uploading credentials."
+      "Format .env files with consistent quotes, ordering, and duplicate removal without uploading credentials.",
+      "/format"
     ),
-  }),
   component: FormatPage,
 })
 

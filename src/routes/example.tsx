@@ -6,15 +6,15 @@ import { Badge } from "@/components/ui/badge"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { useToolCompletion } from "@/lib/analytics"
 import { generateExample, parseEnv } from "@/lib/env"
-import { seoMeta } from "@/lib/seo"
+import { seoHead } from "@/lib/seo"
 
 export const Route = createFileRoute("/example")({
-  head: () => ({
-    meta: seoMeta(
+  head: () =>
+    seoHead(
       ".env.example Generator",
-      "Generate a safe .env.example template by removing environment variable values locally in your browser."
+      "Generate a safe .env.example template by removing environment variable values locally in your browser.",
+      "/example"
     ),
-  }),
   component: ExamplePage,
 })
 

@@ -2,6 +2,7 @@ export const SITE_CONFIG = {
   name: "EnvKit",
   url: "https://envkit.damnlabs.com",
   logo: "/envkit-mark.svg",
+  socialImage: "https://damnlabs.com/envkit-cover.png",
   github: {
     name: "GitHub",
     url: "https://github.com/pixelactstudio/envkit",

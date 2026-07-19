@@ -8,15 +8,15 @@ import { ENV_OUTPUT_FILENAMES } from "@/constants/env"
 import { useToolCompletion } from "@/lib/analytics"
 import { convertEnvironment, parseEnv } from "@/lib/env"
 import type { DockerValueMode, EnvFormat } from "@/lib/env"
-import { seoMeta } from "@/lib/seo"
+import { seoHead } from "@/lib/seo"
 
 export const Route = createFileRoute("/convert")({
-  head: () => ({
-    meta: seoMeta(
+  head: () =>
+    seoHead(
       "Convert ENV formats",
-      "Convert .env files and flat JSON into normalized ENV, JSON, shell exports, or Docker Compose syntax locally."
+      "Convert .env files and flat JSON into normalized ENV, JSON, shell exports, or Docker Compose syntax locally.",
+      "/convert"
     ),
-  }),
   component: ConvertPage,
 })
 

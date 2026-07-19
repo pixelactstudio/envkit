@@ -31,18 +31,18 @@ import { useAnalytics, useToolCompletion } from "@/lib/analytics"
 import { copyText } from "@/lib/clipboard"
 import { compareManyEnvs, formatEnv, parseEnv } from "@/lib/env"
 import type { EnvEntry } from "@/lib/env"
-import { seoMeta } from "@/lib/seo"
+import { seoHead } from "@/lib/seo"
 
 type CompareFile = { id: number; name: string; content: string }
 type CompareRow = { key: string; entries: Array<EnvEntry | undefined> }
 
 export const Route = createFileRoute("/compare")({
-  head: () => ({
-    meta: seoMeta(
+  head: () =>
+    seoHead(
       "Compare ENV files",
-      "Compare two or more .env files locally to find missing variables, matching keys, and changed values without uploading secrets."
+      "Compare two or more .env files locally to find missing variables, matching keys, and changed values without uploading secrets.",
+      "/compare"
     ),
-  }),
   component: ComparePage,
 })
 

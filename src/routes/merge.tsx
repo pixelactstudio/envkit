@@ -14,16 +14,16 @@ import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { useToolCompletion } from "@/lib/analytics"
 import { mergeEnvs, parseEnv } from "@/lib/env"
 import type { MergeResolution, MergeWinner } from "@/lib/env"
-import { seoMeta } from "@/lib/seo"
+import { seoHead } from "@/lib/seo"
 import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/merge")({
-  head: () => ({
-    meta: seoMeta(
+  head: () =>
+    seoHead(
       "Merge and clean ENV files",
-      "Merge two .env files with explicit conflict precedence, duplicate removal, and stable sorting in your browser."
+      "Merge two .env files with explicit conflict precedence, duplicate removal, and stable sorting in your browser.",
+      "/merge"
     ),
-  }),
   component: MergePage,
 })
 

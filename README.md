@@ -76,7 +76,7 @@ chore: update dependencies
 
 ## Stack
 
-- TanStack Start in SPA mode with prerendered routes
+- TanStack Start with statically prerendered routes
 - React and TypeScript
 - Tailwind CSS and shadcn/ui components built on Base UI
 - Vitest, ESLint, Prettier, Husky, lint-staged, and Commitlint
@@ -86,3 +86,8 @@ Active development happens on `dev`; `main` is the release branch.
 EnvKit is available at [envkit.damnlabs.com](https://envkit.damnlabs.com). It is
 a [Damn Labs](https://damnlabs.com) product by
 [Pixelact Studio](https://pixelactstudio.com).
+
+## License
+
+EnvKit is open-source software licensed under the
+[Apache License 2.0](./LICENSE).
