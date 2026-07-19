@@ -11,15 +11,15 @@ import {
 } from "@/components/ui/card"
 import { SITE_CONFIG } from "@/constants/site"
 import { TOOLS } from "@/constants/tools"
-import { seoMeta } from "@/lib/seo"
+import { seoHead } from "@/lib/seo"
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: seoMeta(
+  head: () =>
+    seoHead(
       "Private ENV tools for developers",
-      `Compare, inspect, format, merge, redact, and convert .env files locally in your browser with ${SITE_CONFIG.name}.`
+      `Compare, inspect, format, merge, redact, and convert .env files locally in your browser with ${SITE_CONFIG.name}.`,
+      "/"
     ),
-  }),
   component: HomePage,
 })
 
