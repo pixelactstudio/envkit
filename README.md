@@ -1,10 +1,10 @@
 <div align="center">
-  <img src="./public/envkit-mark.svg" alt="EnvKit" width="56" height="56" />
-  <h1>EnvKit</h1>
+  <img src="./public/envsift-mark.svg" alt="ENVSIFT" width="56" height="56" />
+  <h1>ENVSIFT</h1>
   <p>Private, client-side tools for working with environment variables.</p>
 </div>
 
-EnvKit helps developers compare, inspect, format, merge, redact, and convert
+ENVSIFT helps developers compare, inspect, format, merge, redact, and convert
 `.env` files without sending their contents to a server. Pasted values and
 local files are processed in the browser.
 
@@ -24,8 +24,8 @@ local files are processed in the browser.
 Requirements: Node.js and pnpm.
 
 ```bash
-git clone https://github.com/pixelactstudio/envkit.git
-cd envkit
+git clone https://github.com/pixelactstudio/envsift.git
+cd envsift
 pnpm install
 cp .env.example .env.local
 pnpm dev
@@ -83,11 +83,11 @@ chore: update dependencies
 
 Active development happens on `dev`; `main` is the release branch.
 
-EnvKit is available at [envkit.damnlabs.com](https://envkit.damnlabs.com). It is
+ENVSIFT is available at [envsift.damnlabs.com](https://envsift.damnlabs.com). It is
 a [Damn Labs](https://damnlabs.com) product by
 [Pixelact Studio](https://pixelactstudio.com).
 
 ## License
 
-EnvKit is open-source software licensed under the
+ENVSIFT is open-source software licensed under the
 [Apache License 2.0](./LICENSE).

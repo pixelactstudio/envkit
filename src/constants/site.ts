@@ -1,11 +1,11 @@
 export const SITE_CONFIG = {
-  name: "EnvKit",
-  url: "https://envkit.damnlabs.com",
-  logo: "/envkit-mark.svg",
-  socialImage: "https://damnlabs.com/envkit-cover.png",
+  name: "ENVSIFT",
+  url: "https://envsift.damnlabs.com",
+  logo: "/envsift-mark.svg",
+  socialImage: "https://damnlabs.com/envsift-cover.png",
   github: {
     name: "GitHub",
-    url: "https://github.com/pixelactstudio/envkit",
+    url: "https://github.com/pixelactstudio/envsift",
   },
   damnLabs: {
     name: "Damn Labs",

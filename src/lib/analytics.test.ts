@@ -70,7 +70,7 @@ it("allows only manual privacy-safe analytics", async () => {
   }) => { event: string; properties: Record<string, unknown> } | null
   const pageview = {
     event: "$pageview",
-    properties: { $current_url: "https://envkit.damnlabs.com/format" },
+    properties: { $current_url: "https://envsift.damnlabs.com/format" },
   }
   expect(beforeSend(pageview)).toBe(pageview)
   expect(
@@ -84,7 +84,7 @@ it("allows only manual privacy-safe analytics", async () => {
         result: "success",
         $session_id: "session-id",
         $window_id: "window-id",
-        $current_url: "https://envkit.damnlabs.com/format",
+        $current_url: "https://envsift.damnlabs.com/format",
         $browser: "Chrome",
         editor_state: "SECRET=value",
       },
