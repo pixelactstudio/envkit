@@ -27,6 +27,10 @@ function GuidePage() {
     <main className="mx-auto min-h-[calc(100svh-3.5rem)] w-full max-w-3xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
       <Link
         to="/guides"
+        data-ph-capture
+        data-ph-capture-attribute-action="navigate"
+        data-ph-capture-attribute-destination="guides"
+        data-ph-capture-attribute-location="guide_breadcrumb"
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeftIcon className="size-4" />
@@ -84,6 +88,10 @@ function GuidePage() {
           </p>
           <Link
             to={guide.tool.to}
+            data-ph-capture
+            data-ph-capture-attribute-action="navigate"
+            data-ph-capture-attribute-destination={guide.tool.to}
+            data-ph-capture-attribute-location="guide_cta"
             className={buttonVariants({ className: "mt-5" })}
           >
             {guide.tool.label}

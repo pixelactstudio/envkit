@@ -2,10 +2,12 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { ThemeProvider } from "next-themes"
 
 import { AppHeader } from "@/components/app-header"
+import { AnalyticsConsentBanner } from "@/components/analytics-consent"
 import { NotFoundPage } from "@/components/not-found-page"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { SITE_CONFIG } from "@/constants/site"
 import { Analytics } from "@/lib/analytics"
+import { WebMcp } from "@/lib/webmcp"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
@@ -119,7 +121,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="min-h-svh bg-background text-foreground antialiased">
         {app}
+        <WebMcp />
         <Analytics />
+        <AnalyticsConsentBanner />
         <Scripts />
       </body>
     </html>

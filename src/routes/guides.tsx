@@ -44,6 +44,10 @@ function GuidesPage() {
             <Link
               to="/guides/$slug"
               params={{ slug: guide.slug }}
+              data-ph-capture
+              data-ph-capture-attribute-action="navigate"
+              data-ph-capture-attribute-destination="guide"
+              data-ph-capture-attribute-location="guide_list"
               className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-primary underline underline-offset-3"
             >
               Read guide

@@ -40,12 +40,20 @@ VITE_POSTHOG_KEY=phc_your_project_key
 VITE_POSTHOG_HOST=https://us.i.posthog.com
 ```
 
-PostHog records six manual product events with bucketed counts plus page views,
-page leaves, heatmaps, and Web Vitals. Autocapture, session replay, and error
-capture remain disabled. ENV contents, keys, values, filenames, copied text, and
-raw error messages are never included. SDK-added properties are stripped from
-manual product events; only the public project token, anonymous distinct ID, and
-the documented event properties are sent.
+PostHog is not imported or initialized until a visitor explicitly accepts
+analytics. After consent, EnvSift records its privacy-filtered tool events,
+pageviews, page leaves, Web Vitals, heatmaps, WebMCP outcomes, and clicks on
+explicitly annotated navigation controls. Session replay, form/editor
+autocapture, exception capture, GeoIP enrichment, raw user agents, URL query
+strings, and URL fragments remain disabled or removed. ENV contents, keys,
+values, filenames, copied text, tool arguments, tool results, and raw error
+messages are never included. Consent can be changed or withdrawn from
+`/privacy`.
+
+Compatible browser agents can progressively discover six WebMCP tools that
+reuse the same local ENV parser and transformers as the visible interface.
+Unsupported browsers ignore this integration. Any content a user supplies to a
+browser agent is also subject to that agent provider's privacy terms.
 
 ## Scripts
 
