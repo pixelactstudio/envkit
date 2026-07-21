@@ -18,7 +18,8 @@ export const Route = createFileRoute("/")({
     seoHead(
       "Free .env Tools — Compare, Validate & Format",
       `Compare, validate, format, merge, redact, and convert .env files free in your browser with ${SITE_CONFIG.name}. No uploads or server processing.`,
-      "/"
+      "/",
+      { image: "home", kind: "website" }
     ),
   component: HomePage,
 })
@@ -117,6 +118,18 @@ function HomePage() {
             <GithubIcon className="size-3" />
             {SITE_CONFIG.github.name}
           </a>
+          <Link
+            to="/guides"
+            className="underline underline-offset-3 hover:text-foreground"
+          >
+            Guides
+          </Link>
+          <Link
+            to="/privacy"
+            className="underline underline-offset-3 hover:text-foreground"
+          >
+            Privacy
+          </Link>
         </div>
       </footer>
     </main>

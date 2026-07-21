@@ -1,18 +1,20 @@
 // @vitest-environment jsdom
 
 import { createElement, useEffect } from "react"
-import { act, render } from "@testing-library/react"
+import { act, render, waitFor } from "@testing-library/react"
 import { afterEach, beforeEach, expect, it, vi } from "vitest"
 
 const posthog = vi.hoisted(() => ({
+  init: vi.fn(),
   capture: vi.fn(),
 }))
 
-vi.mock("@posthog/react", () => ({ usePostHog: () => posthog }))
+vi.mock("posthog-js", () => ({ default: posthog }))
 
 beforeEach(() => {
   vi.resetModules()
   vi.stubEnv("VITE_POSTHOG_KEY", "phc_test")
+  posthog.init.mockClear()
   posthog.capture.mockClear()
 })
 
@@ -40,11 +42,13 @@ it("allows only manual privacy-safe analytics", async () => {
 
   render(createElement(Capture))
 
-  expect(posthog.capture).toHaveBeenCalledWith("input added", {
-    tool: "compare",
-    source: "drop",
-    file_count: "3+",
-  })
+  await waitFor(() =>
+    expect(posthog.capture).toHaveBeenCalledWith("input added", {
+      tool: "compare",
+      source: "drop",
+      file_count: "3+",
+    })
+  )
   expect(variableCountBucket(77)).toBe("51-100")
 
   const config = POSTHOG_OPTIONS as Record<string, unknown>
@@ -131,7 +135,10 @@ it("completes an operation without sending its editor state", async () => {
   }
 
   render(createElement(Completion))
-  act(() => vi.advanceTimersByTime(800))
+  await act(async () => {
+    vi.advanceTimersByTime(800)
+    await vi.dynamicImportSettled()
+  })
 
   expect(posthog.capture).toHaveBeenCalledWith("tool completed", {
     tool: "format",

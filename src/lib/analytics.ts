@@ -1,6 +1,5 @@
 import { useCallback, useEffect } from "react"
-import { usePostHog } from "@posthog/react"
-import type { PostHogConfig } from "posthog-js"
+import type { PostHog, PostHogConfig } from "posthog-js"
 
 export type ToolName =
   "compare" | "example" | "inspect" | "merge" | "format" | "convert"
@@ -78,17 +77,35 @@ export const POSTHOG_OPTIONS = {
   },
 } satisfies Partial<PostHogConfig>
 
-export function useAnalytics() {
-  const posthog = usePostHog()
+let posthogPromise: Promise<PostHog> | undefined
 
+function getPostHog() {
+  if (!POSTHOG_API_KEY) return
+
+  posthogPromise ??= import("posthog-js").then(({ default: posthog }) => {
+    posthog.init(POSTHOG_API_KEY, POSTHOG_OPTIONS)
+    return posthog
+  })
+  return posthogPromise
+}
+
+export function Analytics() {
+  useEffect(() => {
+    void getPostHog()
+  }, [])
+
+  return null
+}
+
+export function useAnalytics() {
   return useCallback(
     <TEvent extends keyof AnalyticsEvents>(
       event: TEvent,
       properties: AnalyticsEvents[TEvent]
     ) => {
-      if (POSTHOG_API_KEY) posthog.capture(event, properties)
+      void getPostHog()?.then((posthog) => posthog.capture(event, properties))
     },
-    [posthog]
+    []
   )
 }
 

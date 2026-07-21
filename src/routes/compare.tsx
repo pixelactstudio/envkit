@@ -41,7 +41,8 @@ export const Route = createFileRoute("/compare")({
     seoHead(
       "Compare .env Files Online — Free ENV Diff",
       "Compare two or more .env files online to find missing variables and changed values. Free, private, and processed entirely in your browser.",
-      "/compare"
+      "/compare",
+      { image: "compare", kind: "tool" }
     ),
   component: ComparePage,
 })

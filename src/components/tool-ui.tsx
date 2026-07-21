@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { ToolSeoContent } from "@/components/tool-seo-content"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Card,
@@ -63,6 +64,7 @@ export function ToolPage({
         </p>
       </div>
       {children}
+      <ToolSeoContent tool={tool} />
     </main>
   )
 }

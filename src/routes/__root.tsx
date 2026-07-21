@@ -1,14 +1,11 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
-import { TanStackDevtools } from "@tanstack/react-devtools"
-import { PostHogProvider } from "@posthog/react"
 import { ThemeProvider } from "next-themes"
 
 import { AppHeader } from "@/components/app-header"
 import { NotFoundPage } from "@/components/not-found-page"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { SITE_CONFIG } from "@/constants/site"
-import { POSTHOG_API_KEY, POSTHOG_OPTIONS } from "@/lib/analytics"
+import { Analytics } from "@/lib/analytics"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
@@ -121,24 +118,8 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="min-h-svh bg-background text-foreground antialiased">
-        {POSTHOG_API_KEY ? (
-          <PostHogProvider apiKey={POSTHOG_API_KEY} options={POSTHOG_OPTIONS}>
-            {app}
-          </PostHogProvider>
-        ) : (
-          app
-        )}
-        <TanStackDevtools
-          config={{
-            position: "bottom-right",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
+        {app}
+        <Analytics />
         <Scripts />
       </body>
     </html>

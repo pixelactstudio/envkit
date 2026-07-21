@@ -11,9 +11,10 @@ import { seoHead } from "@/lib/seo"
 export const Route = createFileRoute("/example")({
   head: () =>
     seoHead(
-      ".env.example Generator",
+      "Free .env.example Generator — Remove Secret Values",
       "Generate a safe .env.example template by removing environment variable values locally in your browser.",
-      "/example"
+      "/example",
+      { image: "example", kind: "tool" }
     ),
   component: ExamplePage,
 })

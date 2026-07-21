@@ -80,6 +80,25 @@ export function AppHeader() {
           </NavigationMenuList>
         </NavigationMenu>
 
+        <Link
+          to="/guides"
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "sm" }),
+            "hidden md:inline-flex"
+          )}
+        >
+          Guides
+        </Link>
+        <Link
+          to="/privacy"
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "sm" }),
+            "hidden md:inline-flex"
+          )}
+        >
+          Privacy
+        </Link>
+
         <a
           href={SITE_CONFIG.github.url}
           target="_blank"
@@ -121,6 +140,20 @@ export function AppHeader() {
                 {tool.title}
               </Link>
             ))}
+            <div className="mt-1 border-t pt-1">
+              <Link
+                to="/guides"
+                className="block px-2 py-2 text-xs outline-none hover:bg-muted focus-visible:bg-muted"
+              >
+                ENV guides
+              </Link>
+              <Link
+                to="/privacy"
+                className="block px-2 py-2 text-xs outline-none hover:bg-muted focus-visible:bg-muted"
+              >
+                Privacy and methodology
+              </Link>
+            </div>
           </div>
         </details>
       </div>

@@ -8,7 +8,7 @@ EnvSift processes all pasted and local file content inside the user's browser. I
 
 - [ENV Compare](https://envsift.damnlabs.com/compare): Find missing and changed variables across two or more environments.
 - [.env.example Generator](https://envsift.damnlabs.com/example): Remove values and create a safe template.
-- [ENV Inspector](https://envsift.damnlabs.com/inspect): Detect invalid lines, duplicate keys, empty values, missing references, and risky whitespace.
+- [ENV Validator](https://envsift.damnlabs.com/validator): Detect invalid lines, duplicate keys, empty values, missing references, and risky whitespace.
 - [Merge and Clean](https://envsift.damnlabs.com/merge): Combine ENV files with explicit conflict resolution and stable ordering.
 - [ENV Formatter](https://envsift.damnlabs.com/format): Normalize quotes, ordering, comments, and duplicate assignments.
 - [Format Converter](https://envsift.damnlabs.com/convert): Convert ENV or flat JSON to ENV, JSON, shell exports, or Docker Compose syntax.
@@ -17,3 +17,12 @@ EnvSift processes all pasted and local file content inside the user's browser. I
 
 - [EnvSift](https://envsift.damnlabs.com): Open the web application.
 - [Source code](https://github.com/pixelactstudio/envsift): Review the implementation, documentation, and license.
+- [ENV guides](https://envsift.damnlabs.com/guides): Practical guidance for comparing, validating, formatting, and managing environment configuration.
+- [Privacy and methodology](https://envsift.damnlabs.com/privacy): How browser-only file processing and privacy-filtered analytics work.
+
+## Guides
+
+- [Compare .env and .env.example](https://envsift.damnlabs.com/guides/compare-env-and-env-example)
+- [Validate ENV before deployment](https://envsift.damnlabs.com/guides/validate-env-before-deployment)
+- [Format dotenv for Node, Docker, and shell](https://envsift.damnlabs.com/guides/format-dotenv-node-docker-shell)
+- [Prevent environment configuration drift](https://envsift.damnlabs.com/guides/prevent-environment-configuration-drift)

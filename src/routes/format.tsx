@@ -14,7 +14,8 @@ export const Route = createFileRoute("/format")({
     seoHead(
       ".env Formatter Online — Clean Dotenv Files",
       "Format .env files online with consistent quotes, sorting, comment handling, and duplicate removal. Free and processed entirely in your browser.",
-      "/format"
+      "/format",
+      { image: "format", kind: "tool" }
     ),
   component: FormatPage,
 })
