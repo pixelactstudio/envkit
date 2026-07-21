@@ -19,8 +19,8 @@ import { seoHead } from "@/lib/seo"
 export const Route = createFileRoute("/inspect")({
   head: () =>
     seoHead(
-      "Inspect an ENV file",
-      "Validate .env syntax and find duplicate keys, empty values, missing references, and risky whitespace locally.",
+      "Free .env File Validator — Check ENV Syntax",
+      "Validate .env files online for syntax errors, duplicate keys, empty values, missing references, and risky whitespace without uploading secrets.",
       "/inspect"
     ),
   component: InspectPage,
@@ -46,7 +46,7 @@ function InspectPage() {
   return (
     <ToolPage
       tool="inspect"
-      title="ENV Inspector"
+      title=".env File Validator"
       description="Check an ENV file for malformed assignments, duplicate keys, empty values, missing references, and risky whitespace."
     >
       <div className="space-y-4">

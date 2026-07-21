@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://envsift.damnlabs.com/sitemap.xml

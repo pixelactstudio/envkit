@@ -12,8 +12,8 @@ import { seoHead } from "@/lib/seo"
 export const Route = createFileRoute("/format")({
   head: () =>
     seoHead(
-      "Format ENV files",
-      "Format .env files with consistent quotes, ordering, and duplicate removal without uploading credentials.",
+      ".env Formatter Online — Clean Dotenv Files",
+      "Format .env files online with consistent quotes, sorting, comment handling, and duplicate removal. Free and processed entirely in your browser.",
       "/format"
     ),
   component: FormatPage,
