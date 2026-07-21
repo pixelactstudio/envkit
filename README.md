@@ -14,7 +14,7 @@ local files are processed in the browser.
 | ------------------------ | --------------------------------------------------------------------------------------------- |
 | ENV Compare              | Find missing or changed variables across two or more files.                                   |
 | `.env.example` Generator | Remove values and create a safe template.                                                     |
-| ENV Inspector            | Detect invalid lines, duplicate keys, empty values, missing references, and risky whitespace. |
+| ENV Validator            | Detect invalid lines, duplicate keys, empty values, missing references, and risky whitespace. |
 | Merge & Clean            | Merge two files with automatic or manual conflict resolution.                                 |
 | ENV Formatter            | Normalize quotes and ordering while optionally preserving comments.                           |
 | Format Converter         | Convert ENV or flat JSON to ENV, JSON, shell exports, or Docker Compose syntax.               |

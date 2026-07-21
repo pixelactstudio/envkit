@@ -39,9 +39,10 @@ type CompareRow = { key: string; entries: Array<EnvEntry | undefined> }
 export const Route = createFileRoute("/compare")({
   head: () =>
     seoHead(
-      "Compare ENV files",
-      "Compare two or more .env files locally to find missing variables, matching keys, and changed values without uploading secrets.",
-      "/compare"
+      "Compare .env Files Online — Free ENV Diff",
+      "Compare two or more .env files online to find missing variables and changed values. Free, private, and processed entirely in your browser.",
+      "/compare",
+      { image: "compare", kind: "tool" }
     ),
   component: ComparePage,
 })
@@ -183,7 +184,7 @@ function ComparePage() {
   return (
     <ToolPage
       tool="compare"
-      title="Compare ENV files"
+      title=".env File Compare"
       description="Compare two or more environments to find missing keys and value differences. Values stay hidden until you reveal them."
     >
       <div className="mb-4 flex items-center justify-between gap-4">

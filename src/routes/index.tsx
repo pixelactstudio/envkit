@@ -16,9 +16,10 @@ import { seoHead } from "@/lib/seo"
 export const Route = createFileRoute("/")({
   head: () =>
     seoHead(
-      "Private ENV tools for developers",
-      `Compare, inspect, format, merge, redact, and convert .env files locally in your browser with ${SITE_CONFIG.name}.`,
-      "/"
+      "Free .env Tools — Compare, Validate & Format",
+      `Compare, validate, format, merge, redact, and convert .env files free in your browser with ${SITE_CONFIG.name}. No uploads or server processing.`,
+      "/",
+      { image: "home", kind: "website" }
     ),
   component: HomePage,
 })
@@ -32,11 +33,11 @@ function HomePage() {
             Private developer utilities
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-balance sm:text-5xl">
-            Environment files, handled.
+            All your .env tools, in one private workspace.
           </h1>
           <p className="mt-3 max-w-2xl text-sm/relaxed text-muted-foreground sm:text-base/relaxed">
-            Compare, clean, inspect, and convert ENV files without sending
-            credentials to another server.
+            Compare, validate, format, merge, redact, and convert .env files
+            without sending credentials to a server.
           </p>
         </div>
         <div className="hidden border-l border-primary/40 pl-5 text-xs/relaxed text-muted-foreground lg:block">
@@ -117,6 +118,18 @@ function HomePage() {
             <GithubIcon className="size-3" />
             {SITE_CONFIG.github.name}
           </a>
+          <Link
+            to="/guides"
+            className="underline underline-offset-3 hover:text-foreground"
+          >
+            Guides
+          </Link>
+          <Link
+            to="/privacy"
+            className="underline underline-offset-3 hover:text-foreground"
+          >
+            Privacy
+          </Link>
         </div>
       </footer>
     </main>

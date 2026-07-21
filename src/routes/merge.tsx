@@ -20,9 +20,10 @@ import { cn } from "@/lib/utils"
 export const Route = createFileRoute("/merge")({
   head: () =>
     seoHead(
-      "Merge and clean ENV files",
+      "Merge .env Files Online — Clean Duplicate Keys",
       "Merge two .env files with explicit conflict precedence, duplicate removal, and stable sorting in your browser.",
-      "/merge"
+      "/merge",
+      { image: "merge", kind: "tool" }
     ),
   component: MergePage,
 })

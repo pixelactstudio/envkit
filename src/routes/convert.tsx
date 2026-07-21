@@ -13,9 +13,10 @@ import { seoHead } from "@/lib/seo"
 export const Route = createFileRoute("/convert")({
   head: () =>
     seoHead(
-      "Convert ENV formats",
+      ".env Converter — ENV to JSON, Shell & Docker",
       "Convert .env files and flat JSON into normalized ENV, JSON, shell exports, or Docker Compose syntax locally.",
-      "/convert"
+      "/convert",
+      { image: "convert", kind: "tool" }
     ),
   component: ConvertPage,
 })
