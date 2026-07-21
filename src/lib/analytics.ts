@@ -77,15 +77,20 @@ export const POSTHOG_OPTIONS = {
   },
 } satisfies Partial<PostHogConfig>
 
-let posthogPromise: Promise<PostHog> | undefined
+let posthogPromise: Promise<PostHog | undefined> | undefined
 
 function getPostHog() {
   if (!POSTHOG_API_KEY) return
 
-  posthogPromise ??= import("posthog-js").then(({ default: posthog }) => {
-    posthog.init(POSTHOG_API_KEY, POSTHOG_OPTIONS)
-    return posthog
-  })
+  posthogPromise ??= import("posthog-js")
+    .then(({ default: posthog }) => {
+      posthog.init(POSTHOG_API_KEY, POSTHOG_OPTIONS)
+      return posthog
+    })
+    .catch(() => {
+      posthogPromise = undefined
+      return undefined
+    })
   return posthogPromise
 }
 
@@ -103,7 +108,7 @@ export function useAnalytics() {
       event: TEvent,
       properties: AnalyticsEvents[TEvent]
     ) => {
-      void getPostHog()?.then((posthog) => posthog.capture(event, properties))
+      void getPostHog()?.then((posthog) => posthog?.capture(event, properties))
     },
     []
   )

@@ -149,3 +149,30 @@ it("completes an operation without sending its editor state", async () => {
     "sensitive-value"
   )
 })
+
+it("retries after the analytics chunk fails to load", async () => {
+  let imports = 0
+  vi.doMock("posthog-js", () => {
+    imports += 1
+    if (imports === 1) throw new Error("temporary chunk failure")
+    return { default: posthog }
+  })
+
+  const { Analytics, useAnalytics } = await import("./analytics")
+  render(createElement(Analytics))
+  await vi.dynamicImportSettled()
+
+  function Capture() {
+    const track = useAnalytics()
+    useEffect(() => track("tool opened", { tool: "compare" }), [track])
+    return null
+  }
+
+  render(createElement(Capture))
+  await waitFor(() =>
+    expect(posthog.capture).toHaveBeenCalledWith("tool opened", {
+      tool: "compare",
+    })
+  )
+  expect(imports).toBe(2)
+})

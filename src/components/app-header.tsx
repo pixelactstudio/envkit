@@ -1,4 +1,5 @@
 import { useRef, useState } from "react"
+import type { MouseEvent } from "react"
 import { Link } from "@tanstack/react-router"
 import { MenuIcon } from "lucide-react"
 
@@ -16,6 +17,10 @@ import {
 import { SITE_CONFIG } from "@/constants/site"
 import { TOOLS } from "@/constants/tools"
 import { cn } from "@/lib/utils"
+
+function closeMobileMenu(event: MouseEvent<HTMLAnchorElement>) {
+  event.currentTarget.closest("details")?.removeAttribute("open")
+}
 
 export function AppHeader() {
   const [menu, setMenu] = useState<string | null>(null)
@@ -130,11 +135,7 @@ export function AppHeader() {
                 key={tool.to}
                 to={tool.to}
                 className="flex items-center gap-2 px-2 py-2 text-xs outline-none hover:bg-muted focus-visible:bg-muted"
-                onClick={(event) =>
-                  event.currentTarget
-                    .closest("details")
-                    ?.removeAttribute("open")
-                }
+                onClick={closeMobileMenu}
               >
                 <tool.icon />
                 {tool.title}
@@ -144,12 +145,14 @@ export function AppHeader() {
               <Link
                 to="/guides"
                 className="block px-2 py-2 text-xs outline-none hover:bg-muted focus-visible:bg-muted"
+                onClick={closeMobileMenu}
               >
                 ENV guides
               </Link>
               <Link
                 to="/privacy"
                 className="block px-2 py-2 text-xs outline-none hover:bg-muted focus-visible:bg-muted"
+                onClick={closeMobileMenu}
               >
                 Privacy and methodology
               </Link>
