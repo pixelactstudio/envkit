@@ -140,6 +140,59 @@ it("withdraws consent, clears analytics state, and blocks later events", async (
   expect(posthog.capture).not.toHaveBeenCalled()
 })
 
+it("applies consent withdrawal from another tab", async () => {
+  const {
+    ANALYTICS_CONSENT_KEY,
+    Analytics,
+    getAnalyticsConsent,
+    setAnalyticsConsent,
+  } = await import("./analytics")
+  render(createElement(Analytics))
+  setAnalyticsConsent("accepted", "privacy")
+  await waitFor(() => expect(posthog.init).toHaveBeenCalledOnce())
+
+  posthog.reset.mockClear()
+  posthog.opt_out_capturing.mockClear()
+  act(() => {
+    window.localStorage.setItem(ANALYTICS_CONSENT_KEY, "declined")
+    window.dispatchEvent(
+      new StorageEvent("storage", {
+        key: ANALYTICS_CONSENT_KEY,
+        newValue: "declined",
+      })
+    )
+  })
+
+  await waitFor(() => expect(posthog.opt_out_capturing).toHaveBeenCalledOnce())
+  expect(posthog.reset).toHaveBeenCalledWith(true)
+  expect(getAnalyticsConsent()).toBe("declined")
+})
+
+it("does not initialize or capture if consent changes while PostHog loads", async () => {
+  let resolveImport: ((module: { default: typeof posthog }) => void) | undefined
+  vi.doMock(
+    "posthog-js",
+    () =>
+      new Promise<{ default: typeof posthog }>((resolve) => {
+        resolveImport = resolve
+      })
+  )
+
+  const { setAnalyticsConsent } = await import("./analytics")
+  setAnalyticsConsent("accepted", "banner")
+  await waitFor(() => expect(resolveImport).toBeTypeOf("function"))
+  setAnalyticsConsent("declined", "privacy")
+  resolveImport?.({ default: posthog })
+  await vi.dynamicImportSettled()
+
+  expect(posthog.init).not.toHaveBeenCalled()
+  expect(posthog.opt_in_capturing).not.toHaveBeenCalled()
+  expect(posthog.capture).not.toHaveBeenCalled()
+
+  setAnalyticsConsent("accepted", "privacy")
+  await waitFor(() => expect(posthog.init).toHaveBeenCalledOnce())
+})
+
 it("keeps only privacy-safe manual, route, and navigation properties", async () => {
   const { fileCountBucket, POSTHOG_OPTIONS, variableCountBucket } =
     await import("./analytics")

@@ -88,6 +88,21 @@ const AUTOMATIC_EVENTS = new Set([
 
 export const ANALYTICS_CONSENT_KEY = "envsift-analytics-consent-v1"
 export const POSTHOG_API_KEY = import.meta.env.VITE_POSTHOG_KEY
+type PageKind = "tool" | "home" | "guides" | "guide" | "privacy" | "other"
+
+const TOOL_BY_PATH: Partial<Record<string, ToolName>> = {
+  "/compare": "compare",
+  "/example": "example",
+  "/validator": "inspect",
+  "/merge": "merge",
+  "/format": "format",
+  "/convert": "convert",
+}
+const PAGE_KIND_BY_PATH: Partial<Record<string, PageKind>> = {
+  "/": "home",
+  "/guides": "guides",
+  "/privacy": "privacy",
+}
 
 function cleanUrl(value: unknown) {
   if (typeof value !== "string") return undefined
@@ -100,26 +115,10 @@ function cleanUrl(value: unknown) {
 }
 
 function pageContext(pathname: string) {
-  const toolByPath: Partial<Record<string, ToolName>> = {
-    "/compare": "compare",
-    "/example": "example",
-    "/validator": "inspect",
-    "/merge": "merge",
-    "/format": "format",
-    "/convert": "convert",
-  }
-  const tool = toolByPath[pathname]
-  const page_kind = tool
-    ? "tool"
-    : pathname === "/"
-      ? "home"
-      : pathname === "/guides"
-        ? "guides"
-        : pathname.startsWith("/guides/")
-          ? "guide"
-          : pathname === "/privacy"
-            ? "privacy"
-            : "other"
+  const tool = TOOL_BY_PATH[pathname]
+  let page_kind = PAGE_KIND_BY_PATH[pathname] ?? "other"
+  if (tool) page_kind = "tool"
+  else if (pathname.startsWith("/guides/")) page_kind = "guide"
 
   return { route: pathname, page_kind, ...(tool ? { tool } : {}) }
 }
@@ -219,20 +218,45 @@ let consentOverride: AnalyticsConsent | undefined
 const consentListeners = new Set<() => void>()
 let posthogPromise: Promise<PostHog | undefined> | undefined
 
+function parseConsent(value: string | null): AnalyticsConsent {
+  return value === "accepted" || value === "declined" ? value : "unknown"
+}
+
 export function getAnalyticsConsent(): AnalyticsConsent {
   if (consentOverride) return consentOverride
   if (typeof window === "undefined") return "unknown"
   try {
-    const stored = window.localStorage.getItem(ANALYTICS_CONSENT_KEY)
-    return stored === "accepted" || stored === "declined" ? stored : "unknown"
+    return parseConsent(window.localStorage.getItem(ANALYTICS_CONSENT_KEY))
   } catch {
     return "unknown"
   }
 }
 
+function stopPostHog() {
+  void posthogPromise?.then((posthog) => {
+    posthog?.reset(true)
+    posthog?.opt_out_capturing()
+  })
+}
+
+function handleConsentStorage(event: StorageEvent) {
+  if (event.key !== ANALYTICS_CONSENT_KEY) return
+  consentOverride = parseConsent(event.newValue)
+  consentListeners.forEach((listener) => listener())
+  if (consentOverride !== "accepted") stopPostHog()
+}
+
 function subscribeToConsent(listener: () => void) {
   consentListeners.add(listener)
-  return () => consentListeners.delete(listener)
+  if (consentListeners.size === 1) {
+    window.addEventListener("storage", handleConsentStorage)
+  }
+  return () => {
+    consentListeners.delete(listener)
+    if (consentListeners.size === 0) {
+      window.removeEventListener("storage", handleConsentStorage)
+    }
+  }
 }
 
 export function useAnalyticsConsent() {
@@ -248,6 +272,10 @@ function getPostHog() {
 
   posthogPromise ??= import("posthog-js")
     .then(({ default: posthog }) => {
+      if (getAnalyticsConsent() !== "accepted") {
+        posthogPromise = undefined
+        return undefined
+      }
       posthog.init(POSTHOG_API_KEY, POSTHOG_OPTIONS)
       return posthog
     })
@@ -256,6 +284,13 @@ function getPostHog() {
       return undefined
     })
   return posthogPromise
+}
+
+function withPostHog(callback: (posthog: PostHog) => void) {
+  void getPostHog()?.then((posthog) => {
+    if (!posthog || getAnalyticsConsent() !== "accepted") return
+    callback(posthog)
+  })
 }
 
 export function setAnalyticsConsent(
@@ -272,8 +307,7 @@ export function setAnalyticsConsent(
   consentListeners.forEach((listener) => listener())
 
   if (consent === "accepted") {
-    void getPostHog()?.then((posthog) => {
-      if (!posthog) return
+    withPostHog((posthog) => {
       posthog.set_config({ disable_persistence: false })
       posthog.opt_in_capturing({ captureEventName: false })
       if (wasInitialized) posthog.capture("$pageview")
@@ -282,10 +316,7 @@ export function setAnalyticsConsent(
     return
   }
 
-  void posthogPromise?.then((posthog) => {
-    posthog?.reset(true)
-    posthog?.opt_out_capturing()
-  })
+  stopPostHog()
 }
 
 export function Analytics() {
@@ -293,9 +324,9 @@ export function Analytics() {
 
   useEffect(() => {
     if (consent !== "accepted") return
-    void getPostHog()?.then((posthog) => {
-      posthog?.set_config({ disable_persistence: false })
-      posthog?.opt_in_capturing({ captureEventName: false })
+    withPostHog((posthog) => {
+      posthog.set_config({ disable_persistence: false })
+      posthog.opt_in_capturing({ captureEventName: false })
     })
   }, [consent])
 
@@ -308,7 +339,7 @@ export function useAnalytics() {
       event: TEvent,
       properties: AnalyticsEvents[TEvent]
     ) => {
-      void getPostHog()?.then((posthog) => posthog?.capture(event, properties))
+      withPostHog((posthog) => posthog.capture(event, properties))
     },
     []
   )
