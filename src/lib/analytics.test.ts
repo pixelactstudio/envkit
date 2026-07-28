@@ -8,10 +8,6 @@ const state = vi.hoisted(() => ({ imports: 0 }))
 const posthog = vi.hoisted(() => ({
   init: vi.fn(),
   capture: vi.fn(),
-  set_config: vi.fn(),
-  opt_in_capturing: vi.fn(),
-  opt_out_capturing: vi.fn(),
-  reset: vi.fn(),
 }))
 
 vi.mock("posthog-js", () => {
@@ -22,18 +18,9 @@ vi.mock("posthog-js", () => {
 beforeEach(() => {
   vi.resetModules()
   vi.stubEnv("VITE_POSTHOG_KEY", "phc_test")
-  const storage = new Map<string, string>()
-  Object.defineProperty(window, "localStorage", {
-    configurable: true,
-    value: {
-      getItem: (key: string) => storage.get(key) ?? null,
-      setItem: (key: string, value: string) => storage.set(key, value),
-      removeItem: (key: string) => storage.delete(key),
-      clear: () => storage.clear(),
-    },
-  })
   state.imports = 0
-  Object.values(posthog).forEach((mock) => mock.mockClear())
+  posthog.init.mockClear()
+  posthog.capture.mockClear()
 })
 
 afterEach(() => {
@@ -41,173 +28,46 @@ afterEach(() => {
   vi.unstubAllEnvs()
 })
 
-it("does not load or capture analytics before consent", async () => {
-  const { Analytics, useAnalytics } = await import("./analytics")
+it("initializes cookieless analytics and permits privacy-safe events", async () => {
+  const {
+    Analytics,
+    fileCountBucket,
+    POSTHOG_OPTIONS,
+    useAnalytics,
+    variableCountBucket,
+  } = await import("./analytics")
 
   function Capture() {
     const track = useAnalytics()
-    useEffect(() => track("tool opened", { tool: "inspect" }), [track])
+    useEffect(() => {
+      track("input added", {
+        tool: "compare",
+        source: "drop",
+        file_count: fileCountBucket(4),
+      })
+    }, [track])
     return null
   }
 
   render(createElement(Analytics))
   render(createElement(Capture))
-  await vi.dynamicImportSettled()
 
-  expect(state.imports).toBe(0)
-  expect(posthog.init).not.toHaveBeenCalled()
-  expect(posthog.capture).not.toHaveBeenCalled()
-})
-
-it("persists a decline without loading PostHog", async () => {
-  const { ANALYTICS_CONSENT_KEY, setAnalyticsConsent } =
-    await import("./analytics")
-
-  setAnalyticsConsent("declined", "banner")
-  await vi.dynamicImportSettled()
-
-  expect(window.localStorage.getItem(ANALYTICS_CONSENT_KEY)).toBe("declined")
-  expect(state.imports).toBe(0)
-  expect(posthog.init).not.toHaveBeenCalled()
-})
-
-it("persists acceptance, initializes PostHog, and permits capture", async () => {
-  const { ANALYTICS_CONSENT_KEY, setAnalyticsConsent, useAnalytics } =
-    await import("./analytics")
-
-  setAnalyticsConsent("accepted", "banner")
-  await waitFor(() => expect(posthog.init).toHaveBeenCalledOnce())
-  expect(window.localStorage.getItem(ANALYTICS_CONSENT_KEY)).toBe("accepted")
-  expect(posthog.opt_in_capturing).toHaveBeenCalledWith({
-    captureEventName: false,
-  })
-  expect(posthog.capture).toHaveBeenCalledWith("analytics consent accepted", {
-    source: "banner",
-  })
-
-  function Capture() {
-    const track = useAnalytics()
-    useEffect(() => track("tool opened", { tool: "compare" }), [track])
-    return null
-  }
-
-  render(createElement(Capture))
   await waitFor(() =>
-    expect(posthog.capture).toHaveBeenCalledWith("tool opened", {
+    expect(posthog.capture).toHaveBeenCalledWith("input added", {
       tool: "compare",
+      source: "drop",
+      file_count: "3+",
     })
   )
-})
-
-it("discards events emitted before acceptance", async () => {
-  const { setAnalyticsConsent, useAnalytics } = await import("./analytics")
-
-  function Capture() {
-    const track = useAnalytics()
-    useEffect(() => track("tool opened", { tool: "format" }), [track])
-    return null
-  }
-
-  render(createElement(Capture))
-  setAnalyticsConsent("accepted", "privacy")
-  await waitFor(() => expect(posthog.init).toHaveBeenCalledOnce())
-
-  expect(posthog.capture).not.toHaveBeenCalledWith("tool opened", {
-    tool: "format",
-  })
-})
-
-it("withdraws consent, clears analytics state, and blocks later events", async () => {
-  const { setAnalyticsConsent, useAnalytics } = await import("./analytics")
-  setAnalyticsConsent("accepted", "privacy")
-  await waitFor(() => expect(posthog.init).toHaveBeenCalledOnce())
-
-  setAnalyticsConsent("declined", "privacy")
-  await waitFor(() => expect(posthog.opt_out_capturing).toHaveBeenCalledOnce())
-  expect(posthog.reset).toHaveBeenCalledWith(true)
-  expect(posthog.reset.mock.invocationCallOrder[0]).toBeLessThan(
-    posthog.opt_out_capturing.mock.invocationCallOrder[0]
-  )
-
-  posthog.capture.mockClear()
-  function Capture() {
-    const track = useAnalytics()
-    useEffect(() => track("output copied", { tool: "example" }), [track])
-    return null
-  }
-  render(createElement(Capture))
-  await vi.dynamicImportSettled()
-  expect(posthog.capture).not.toHaveBeenCalled()
-})
-
-it("applies consent withdrawal from another tab", async () => {
-  const {
-    ANALYTICS_CONSENT_KEY,
-    Analytics,
-    getAnalyticsConsent,
-    setAnalyticsConsent,
-  } = await import("./analytics")
-  render(createElement(Analytics))
-  setAnalyticsConsent("accepted", "privacy")
-  await waitFor(() => expect(posthog.init).toHaveBeenCalledOnce())
-
-  posthog.reset.mockClear()
-  posthog.opt_out_capturing.mockClear()
-  act(() => {
-    window.localStorage.setItem(ANALYTICS_CONSENT_KEY, "declined")
-    window.dispatchEvent(
-      new StorageEvent("storage", {
-        key: ANALYTICS_CONSENT_KEY,
-        newValue: "declined",
-      })
-    )
-  })
-
-  await waitFor(() => expect(posthog.opt_out_capturing).toHaveBeenCalledOnce())
-  expect(posthog.reset).toHaveBeenCalledWith(true)
-  expect(getAnalyticsConsent()).toBe("declined")
-})
-
-it("does not initialize or capture if consent changes while PostHog loads", async () => {
-  let resolveImport: ((module: { default: typeof posthog }) => void) | undefined
-  vi.doMock(
-    "posthog-js",
-    () =>
-      new Promise<{ default: typeof posthog }>((resolve) => {
-        resolveImport = resolve
-      })
-  )
-
-  const { setAnalyticsConsent } = await import("./analytics")
-  setAnalyticsConsent("accepted", "banner")
-  await waitFor(() => expect(resolveImport).toBeTypeOf("function"))
-  setAnalyticsConsent("declined", "privacy")
-  resolveImport?.({ default: posthog })
-  await vi.dynamicImportSettled()
-
-  expect(posthog.init).not.toHaveBeenCalled()
-  expect(posthog.opt_in_capturing).not.toHaveBeenCalled()
-  expect(posthog.capture).not.toHaveBeenCalled()
-
-  setAnalyticsConsent("accepted", "privacy")
-  await waitFor(() => expect(posthog.init).toHaveBeenCalledOnce())
-})
-
-it("keeps only privacy-safe manual, route, and navigation properties", async () => {
-  const { fileCountBucket, POSTHOG_OPTIONS, variableCountBucket } =
-    await import("./analytics")
-  const config = POSTHOG_OPTIONS as Record<string, unknown>
-  const beforeSend = config.before_send as (event: {
-    event: string
-    properties: Record<string, unknown>
-  }) => { event: string; properties: Record<string, unknown> } | null
-
-  expect(fileCountBucket(4)).toBe("3+")
+  expect(posthog.init).toHaveBeenCalledOnce()
   expect(variableCountBucket(77)).toBe("51-100")
+
+  const config = POSTHOG_OPTIONS as Record<string, unknown>
   expect(config).toMatchObject({
+    cookieless_mode: "always",
+    person_profiles: "never",
     capture_pageview: "history_change",
     capture_pageleave: true,
-    capture_dead_clicks: false,
     capture_exceptions: false,
     capture_heatmaps: true,
     disable_session_recording: true,
@@ -215,6 +75,17 @@ it("keeps only privacy-safe manual, route, and navigation properties", async () 
     mask_all_text: true,
     respect_dnt: true,
   })
+  expect(config).not.toHaveProperty("persistence")
+  expect(config).not.toHaveProperty("opt_out_persistence_by_default")
+})
+
+it("keeps only privacy-safe manual, route, and navigation properties", async () => {
+  const { POSTHOG_OPTIONS } = await import("./analytics")
+  const beforeSend = (POSTHOG_OPTIONS as Record<string, unknown>)
+    .before_send as (event: {
+    event: string
+    properties: Record<string, unknown>
+  }) => { event: string; properties: Record<string, unknown> } | null
 
   expect(
     beforeSend({
@@ -222,6 +93,7 @@ it("keeps only privacy-safe manual, route, and navigation properties", async () 
       properties: {
         token: "phc_test",
         distinct_id: "anonymous-user",
+        $cookieless_mode: true,
         tool: "format",
         variable_count: "2-10",
         result: "success",
@@ -239,6 +111,7 @@ it("keeps only privacy-safe manual, route, and navigation properties", async () 
     properties: {
       token: "phc_test",
       distinct_id: "anonymous-user",
+      $cookieless_mode: true,
       $session_id: "session-id",
       $current_url: "https://envsift.damnlabs.com/format",
       $pathname: "/format",
@@ -258,6 +131,7 @@ it("keeps only privacy-safe manual, route, and navigation properties", async () 
       properties: {
         token: "phc_test",
         distinct_id: "anonymous-user",
+        $cookieless_mode: true,
         action: "navigate",
         destination: "/compare",
         location: "home_tool_grid",
@@ -271,6 +145,7 @@ it("keeps only privacy-safe manual, route, and navigation properties", async () 
     properties: {
       token: "phc_test",
       distinct_id: "anonymous-user",
+      $cookieless_mode: true,
       $pathname: "/",
       $geoip_disable: true,
       action: "navigate",
@@ -283,11 +158,29 @@ it("keeps only privacy-safe manual, route, and navigation properties", async () 
   })
 })
 
+it("does not load analytics without a project key", async () => {
+  vi.stubEnv("VITE_POSTHOG_KEY", "")
+  vi.resetModules()
+  const { Analytics, useAnalytics } = await import("./analytics")
+
+  function Capture() {
+    const track = useAnalytics()
+    useEffect(() => track("tool opened", { tool: "inspect" }), [track])
+    return null
+  }
+
+  render(createElement(Analytics))
+  render(createElement(Capture))
+  await vi.dynamicImportSettled()
+
+  expect(state.imports).toBe(0)
+  expect(posthog.init).not.toHaveBeenCalled()
+  expect(posthog.capture).not.toHaveBeenCalled()
+})
+
 it("completes an operation without sending its editor state", async () => {
   vi.useFakeTimers()
-  const { setAnalyticsConsent, useToolCompletion } = await import("./analytics")
-  setAnalyticsConsent("accepted", "banner")
-  await vi.dynamicImportSettled()
+  const { useToolCompletion } = await import("./analytics")
 
   function Completion() {
     useToolCompletion({
@@ -315,7 +208,7 @@ it("completes an operation without sending its editor state", async () => {
   )
 })
 
-it("retries a failed PostHog import after consent", async () => {
+it("retries after the analytics chunk fails to load", async () => {
   let imports = 0
   vi.doMock("posthog-js", () => {
     imports += 1
@@ -323,8 +216,8 @@ it("retries a failed PostHog import after consent", async () => {
     return { default: posthog }
   })
 
-  const { setAnalyticsConsent, useAnalytics } = await import("./analytics")
-  setAnalyticsConsent("accepted", "banner")
+  const { Analytics, useAnalytics } = await import("./analytics")
+  render(createElement(Analytics))
   await vi.dynamicImportSettled()
 
   function Capture() {

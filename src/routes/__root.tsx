@@ -2,7 +2,6 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
 import { ThemeProvider } from "next-themes"
 
 import { AppHeader } from "@/components/app-header"
-import { AnalyticsConsentBanner } from "@/components/analytics-consent"
 import { NotFoundPage } from "@/components/not-found-page"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { SITE_CONFIG } from "@/constants/site"
@@ -123,7 +122,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         {app}
         <WebMcp />
         <Analytics />
-        <AnalyticsConsentBanner />
         <Scripts />
       </body>
     </html>

@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router"
 import { ArrowRightIcon, ShieldCheckIcon } from "lucide-react"
 
-import { AnalyticsConsentControls } from "@/components/analytics-consent"
 import { GithubIcon } from "@/components/github-icon"
 import { buttonVariants } from "@/components/ui/button"
 import { SITE_CONFIG } from "@/constants/site"
@@ -74,8 +73,7 @@ function PrivacyPage() {
             <h2 className="font-semibold">What may be measured</h2>
             <ul className="mt-3 grid gap-2 text-sm/relaxed text-muted-foreground">
               <li>
-                After acceptance: page views, page leaves, Web Vitals, and
-                heatmap coordinates
+                Page views, page leaves, Web Vitals, and heatmap coordinates
               </li>
               <li>Which tool was opened</li>
               <li>Input method: paste, file, or drop</li>
@@ -89,15 +87,15 @@ function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold">Storage and third parties</h2>
           <p className="mt-3 text-sm/relaxed text-muted-foreground">
-            The selected theme and your analytics preference are stored in
-            localStorage. Only after acceptance may PostHog store an anonymous
-            analytics identifier and receive privacy-filtered events. Browser Do
-            Not Track is respected. EnvSift does not create accounts, upload
+            The selected theme is stored in localStorage. PostHog receives
+            privacy-filtered events in cookieless mode and stores no analytics
+            identifier in cookies, localStorage, or sessionStorage. It derives a
+            non-reversible daily identifier on its servers for audience
+            measurement, so visitors cannot be recognized across days. Browser
+            Do Not Track is respected. EnvSift does not create accounts, upload
             files, or persist editor contents.
           </p>
         </section>
-
-        <AnalyticsConsentControls />
 
         <section>
           <h2 className="text-xl font-semibold">Browser agents and WebMCP</h2>
@@ -105,11 +103,10 @@ function PrivacyPage() {
             In compatible browsers, EnvSift exposes its six deterministic tools
             through WebMCP. These tools run the same local functions as the
             visible interface. EnvSift analytics receive only the tool name,
-            success or failure, and a broad input-size bucket after analytics
-            consent—never tool arguments or results. Content you give to a
-            browser agent may still be processed under that agent provider's
-            privacy terms, so do not share secrets with an agent you do not
-            trust.
+            success or failure, and a broad input-size bucket—never tool
+            arguments or results. Content you give to a browser agent may still
+            be processed under that agent provider's privacy terms, so do not
+            share secrets with an agent you do not trust.
           </p>
         </section>
 

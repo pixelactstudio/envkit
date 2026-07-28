@@ -1,11 +1,9 @@
-import { useCallback, useEffect, useSyncExternalStore } from "react"
+import { useCallback, useEffect } from "react"
 import type { PostHog, PostHogConfig } from "posthog-js"
 
 export type ToolName =
   "compare" | "example" | "inspect" | "merge" | "format" | "convert"
 export type ToolErrorCode = "invalid_input" | "file_read_failed" | "copy_failed"
-export type AnalyticsConsent = "accepted" | "declined" | "unknown"
-export type AnalyticsConsentSource = "banner" | "privacy"
 export type WebMcpToolName =
   | "compare_env_files"
   | "validate_env_file"
@@ -29,7 +27,6 @@ type AnalyticsEvents = {
   "output copied": { tool: ToolName }
   "output downloaded": { tool: ToolName }
   "tool error": { tool: ToolName; error_code: ToolErrorCode }
-  "analytics consent accepted": { source: AnalyticsConsentSource }
   "webmcp tool called": {
     tool: WebMcpToolName
     result: "success" | "failure"
@@ -46,10 +43,13 @@ const EVENT_PROPERTIES: {
   "output copied": ["tool"],
   "output downloaded": ["tool"],
   "tool error": ["tool", "error_code"],
-  "analytics consent accepted": ["source"],
   "webmcp tool called": ["tool", "result", "input_size"],
 }
-const REQUIRED_POSTHOG_PROPERTIES = ["token", "distinct_id"] as const
+const REQUIRED_POSTHOG_PROPERTIES = [
+  "token",
+  "distinct_id",
+  "$cookieless_mode",
+] as const
 const SAFE_CONTEXT_PROPERTIES = [
   "$session_id",
   "$window_id",
@@ -86,7 +86,6 @@ const AUTOMATIC_EVENTS = new Set([
   "$$heatmap",
 ])
 
-export const ANALYTICS_CONSENT_KEY = "envsift-analytics-consent-v1"
 export const POSTHOG_API_KEY = import.meta.env.VITE_POSTHOG_KEY
 type PageKind = "tool" | "home" | "guides" | "guide" | "privacy" | "other"
 
@@ -149,9 +148,8 @@ export const POSTHOG_OPTIONS = {
   disable_surveys: true,
   advanced_disable_flags: true,
   rageclick: false,
-  person_profiles: "identified_only",
-  persistence: "localStorage",
-  opt_out_persistence_by_default: true,
+  person_profiles: "never",
+  cookieless_mode: "always",
   property_denylist: ["$raw_user_agent"],
   mask_all_text: true,
   respect_dnt: true,
@@ -214,68 +212,13 @@ export const POSTHOG_OPTIONS = {
   },
 } satisfies Partial<PostHogConfig>
 
-let consentOverride: AnalyticsConsent | undefined
-const consentListeners = new Set<() => void>()
 let posthogPromise: Promise<PostHog | undefined> | undefined
 
-function parseConsent(value: string | null): AnalyticsConsent {
-  return value === "accepted" || value === "declined" ? value : "unknown"
-}
-
-export function getAnalyticsConsent(): AnalyticsConsent {
-  if (consentOverride) return consentOverride
-  if (typeof window === "undefined") return "unknown"
-  try {
-    return parseConsent(window.localStorage.getItem(ANALYTICS_CONSENT_KEY))
-  } catch {
-    return "unknown"
-  }
-}
-
-function stopPostHog() {
-  void posthogPromise?.then((posthog) => {
-    posthog?.reset(true)
-    posthog?.opt_out_capturing()
-  })
-}
-
-function handleConsentStorage(event: StorageEvent) {
-  if (event.key !== ANALYTICS_CONSENT_KEY) return
-  consentOverride = parseConsent(event.newValue)
-  consentListeners.forEach((listener) => listener())
-  if (consentOverride !== "accepted") stopPostHog()
-}
-
-function subscribeToConsent(listener: () => void) {
-  consentListeners.add(listener)
-  if (consentListeners.size === 1) {
-    window.addEventListener("storage", handleConsentStorage)
-  }
-  return () => {
-    consentListeners.delete(listener)
-    if (consentListeners.size === 0) {
-      window.removeEventListener("storage", handleConsentStorage)
-    }
-  }
-}
-
-export function useAnalyticsConsent() {
-  return useSyncExternalStore(
-    subscribeToConsent,
-    getAnalyticsConsent,
-    () => "unknown" as const
-  )
-}
-
 function getPostHog() {
-  if (!POSTHOG_API_KEY || getAnalyticsConsent() !== "accepted") return
+  if (!POSTHOG_API_KEY) return
 
   posthogPromise ??= import("posthog-js")
     .then(({ default: posthog }) => {
-      if (getAnalyticsConsent() !== "accepted") {
-        posthogPromise = undefined
-        return undefined
-      }
       posthog.init(POSTHOG_API_KEY, POSTHOG_OPTIONS)
       return posthog
     })
@@ -288,47 +231,14 @@ function getPostHog() {
 
 function withPostHog(callback: (posthog: PostHog) => void) {
   void getPostHog()?.then((posthog) => {
-    if (!posthog || getAnalyticsConsent() !== "accepted") return
-    callback(posthog)
+    if (posthog) callback(posthog)
   })
 }
 
-export function setAnalyticsConsent(
-  consent: Exclude<AnalyticsConsent, "unknown">,
-  source: AnalyticsConsentSource
-) {
-  const wasInitialized = Boolean(posthogPromise)
-  consentOverride = consent
-  try {
-    window.localStorage.setItem(ANALYTICS_CONSENT_KEY, consent)
-  } catch {
-    // The in-memory choice still applies for this tab.
-  }
-  consentListeners.forEach((listener) => listener())
-
-  if (consent === "accepted") {
-    withPostHog((posthog) => {
-      posthog.set_config({ disable_persistence: false })
-      posthog.opt_in_capturing({ captureEventName: false })
-      if (wasInitialized) posthog.capture("$pageview")
-      posthog.capture("analytics consent accepted", { source })
-    })
-    return
-  }
-
-  stopPostHog()
-}
-
 export function Analytics() {
-  const consent = useAnalyticsConsent()
-
   useEffect(() => {
-    if (consent !== "accepted") return
-    withPostHog((posthog) => {
-      posthog.set_config({ disable_persistence: false })
-      posthog.opt_in_capturing({ captureEventName: false })
-    })
-  }, [consent])
+    void getPostHog()
+  }, [])
 
   return null
 }
