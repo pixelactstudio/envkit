@@ -9,14 +9,29 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ValidatorRouteImport } from './routes/validator'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as MergeRouteImport } from './routes/merge'
 import { Route as InspectRouteImport } from './routes/inspect'
+import { Route as GuidesRouteImport } from './routes/guides'
 import { Route as FormatRouteImport } from './routes/format'
 import { Route as ExampleRouteImport } from './routes/example'
 import { Route as ConvertRouteImport } from './routes/convert'
 import { Route as CompareRouteImport } from './routes/compare'
+import { Route as R404RouteImport } from './routes/404'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GuidesSlugRouteImport } from './routes/guides_.$slug'
 
+const ValidatorRoute = ValidatorRouteImport.update({
+  id: '/validator',
+  path: '/validator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MergeRoute = MergeRouteImport.update({
   id: '/merge',
   path: '/merge',
@@ -25,6 +40,11 @@ const MergeRoute = MergeRouteImport.update({
 const InspectRoute = InspectRouteImport.update({
   id: '/inspect',
   path: '/inspect',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuidesRoute = GuidesRouteImport.update({
+  id: '/guides',
+  path: '/guides',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FormatRoute = FormatRouteImport.update({
@@ -47,82 +67,141 @@ const CompareRoute = CompareRouteImport.update({
   path: '/compare',
   getParentRoute: () => rootRouteImport,
 } as any)
+const R404Route = R404RouteImport.update({
+  id: '/404',
+  path: '/404',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuidesSlugRoute = GuidesSlugRouteImport.update({
+  id: '/guides_/$slug',
+  path: '/guides/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/compare': typeof CompareRoute
   '/convert': typeof ConvertRoute
   '/example': typeof ExampleRoute
   '/format': typeof FormatRoute
+  '/guides': typeof GuidesRoute
   '/inspect': typeof InspectRoute
   '/merge': typeof MergeRoute
+  '/privacy': typeof PrivacyRoute
+  '/validator': typeof ValidatorRoute
+  '/guides/$slug': typeof GuidesSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/compare': typeof CompareRoute
   '/convert': typeof ConvertRoute
   '/example': typeof ExampleRoute
   '/format': typeof FormatRoute
+  '/guides': typeof GuidesRoute
   '/inspect': typeof InspectRoute
   '/merge': typeof MergeRoute
+  '/privacy': typeof PrivacyRoute
+  '/validator': typeof ValidatorRoute
+  '/guides/$slug': typeof GuidesSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/404': typeof R404Route
   '/compare': typeof CompareRoute
   '/convert': typeof ConvertRoute
   '/example': typeof ExampleRoute
   '/format': typeof FormatRoute
+  '/guides': typeof GuidesRoute
   '/inspect': typeof InspectRoute
   '/merge': typeof MergeRoute
+  '/privacy': typeof PrivacyRoute
+  '/validator': typeof ValidatorRoute
+  '/guides_/$slug': typeof GuidesSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/404'
     | '/compare'
     | '/convert'
     | '/example'
     | '/format'
+    | '/guides'
     | '/inspect'
     | '/merge'
+    | '/privacy'
+    | '/validator'
+    | '/guides/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/404'
     | '/compare'
     | '/convert'
     | '/example'
     | '/format'
+    | '/guides'
     | '/inspect'
     | '/merge'
+    | '/privacy'
+    | '/validator'
+    | '/guides/$slug'
   id:
     | '__root__'
     | '/'
+    | '/404'
     | '/compare'
     | '/convert'
     | '/example'
     | '/format'
+    | '/guides'
     | '/inspect'
     | '/merge'
+    | '/privacy'
+    | '/validator'
+    | '/guides_/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  R404Route: typeof R404Route
   CompareRoute: typeof CompareRoute
   ConvertRoute: typeof ConvertRoute
   ExampleRoute: typeof ExampleRoute
   FormatRoute: typeof FormatRoute
+  GuidesRoute: typeof GuidesRoute
   InspectRoute: typeof InspectRoute
   MergeRoute: typeof MergeRoute
+  PrivacyRoute: typeof PrivacyRoute
+  ValidatorRoute: typeof ValidatorRoute
+  GuidesSlugRoute: typeof GuidesSlugRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/validator': {
+      id: '/validator'
+      path: '/validator'
+      fullPath: '/validator'
+      preLoaderRoute: typeof ValidatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/merge': {
       id: '/merge'
       path: '/merge'
@@ -135,6 +214,13 @@ declare module '@tanstack/react-router' {
       path: '/inspect'
       fullPath: '/inspect'
       preLoaderRoute: typeof InspectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guides': {
+      id: '/guides'
+      path: '/guides'
+      fullPath: '/guides'
+      preLoaderRoute: typeof GuidesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/format': {
@@ -165,6 +251,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompareRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/404': {
+      id: '/404'
+      path: '/404'
+      fullPath: '/404'
+      preLoaderRoute: typeof R404RouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -172,17 +265,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guides_/$slug': {
+      id: '/guides_/$slug'
+      path: '/guides/$slug'
+      fullPath: '/guides/$slug'
+      preLoaderRoute: typeof GuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  R404Route: R404Route,
   CompareRoute: CompareRoute,
   ConvertRoute: ConvertRoute,
   ExampleRoute: ExampleRoute,
   FormatRoute: FormatRoute,
+  GuidesRoute: GuidesRoute,
   InspectRoute: InspectRoute,
   MergeRoute: MergeRoute,
+  PrivacyRoute: PrivacyRoute,
+  ValidatorRoute: ValidatorRoute,
+  GuidesSlugRoute: GuidesSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

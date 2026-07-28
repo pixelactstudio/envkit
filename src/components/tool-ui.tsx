@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { ToolSeoContent } from "@/components/tool-seo-content"
 import { Button, buttonVariants } from "@/components/ui/button"
 import {
   Card,
@@ -49,6 +50,11 @@ export function ToolPage({
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
       <Link
         to="/"
+        data-ph-capture
+        data-ph-capture-attribute-action="navigate"
+        data-ph-capture-attribute-destination="home"
+        data-ph-capture-attribute-location="tool_breadcrumb"
+        data-ph-capture-attribute-tool={tool}
         className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "mb-6")}
       >
         <ArrowLeftIcon data-icon="inline-start" />
@@ -63,6 +69,7 @@ export function ToolPage({
         </p>
       </div>
       {children}
+      <ToolSeoContent tool={tool} />
     </main>
   )
 }

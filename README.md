@@ -14,7 +14,7 @@ local files are processed in the browser.
 | ------------------------ | --------------------------------------------------------------------------------------------- |
 | ENV Compare              | Find missing or changed variables across two or more files.                                   |
 | `.env.example` Generator | Remove values and create a safe template.                                                     |
-| ENV Inspector            | Detect invalid lines, duplicate keys, empty values, missing references, and risky whitespace. |
+| ENV Validator            | Detect invalid lines, duplicate keys, empty values, missing references, and risky whitespace. |
 | Merge & Clean            | Merge two files with automatic or manual conflict resolution.                                 |
 | ENV Formatter            | Normalize quotes and ordering while optionally preserving comments.                           |
 | Format Converter         | Convert ENV or flat JSON to ENV, JSON, shell exports, or Docker Compose syntax.               |
@@ -40,12 +40,22 @@ VITE_POSTHOG_KEY=phc_your_project_key
 VITE_POSTHOG_HOST=https://us.i.posthog.com
 ```
 
-PostHog records six manual product events with bucketed counts plus page views,
-page leaves, heatmaps, and Web Vitals. Autocapture, session replay, and error
-capture remain disabled. ENV contents, keys, values, filenames, copied text, and
-raw error messages are never included. SDK-added properties are stripped from
-manual product events; only the public project token, anonymous distinct ID, and
-the documented event properties are sent.
+Enable **Cookieless server hash mode** in PostHog under **Project settings →
+Web analytics**. EnvSift then records privacy-filtered tool events, pageviews,
+page leaves, Web Vitals, heatmaps, WebMCP outcomes, and clicks on explicitly
+annotated navigation controls without storing analytics identifiers in browser
+storage. Session replay, surveys, person profiles, exception capture, GeoIP
+enrichment, raw user agents, URL query strings, and URL fragments remain
+disabled or removed. ENV contents, keys, values, filenames, copied text, tool
+arguments, tool results, and raw error messages are never included.
+
+Cookieless visitors receive a server-generated daily identifier, so weekly and
+monthly unique-user or retention measurements are not reliable.
+
+Compatible browser agents can progressively discover six WebMCP tools that
+reuse the same local ENV parser and transformers as the visible interface.
+Unsupported browsers ignore this integration. Any content a user supplies to a
+browser agent is also subject to that agent provider's privacy terms.
 
 ## Scripts
 

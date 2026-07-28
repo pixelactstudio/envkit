@@ -1,10 +1,16 @@
 import { useCallback, useEffect } from "react"
-import { usePostHog } from "@posthog/react"
-import type { PostHogConfig } from "posthog-js"
+import type { PostHog, PostHogConfig } from "posthog-js"
 
 export type ToolName =
   "compare" | "example" | "inspect" | "merge" | "format" | "convert"
 export type ToolErrorCode = "invalid_input" | "file_read_failed" | "copy_failed"
+export type WebMcpToolName =
+  | "compare_env_files"
+  | "validate_env_file"
+  | "format_env_file"
+  | "generate_env_example"
+  | "merge_env_files"
+  | "convert_env_file"
 
 type AnalyticsEvents = {
   "tool opened": { tool: ToolName }
@@ -21,6 +27,11 @@ type AnalyticsEvents = {
   "output copied": { tool: ToolName }
   "output downloaded": { tool: ToolName }
   "tool error": { tool: ToolName; error_code: ToolErrorCode }
+  "webmcp tool called": {
+    tool: WebMcpToolName
+    result: "success" | "failure"
+    input_size: "empty" | "small" | "medium" | "large"
+  }
 }
 
 const EVENT_PROPERTIES: {
@@ -32,8 +43,42 @@ const EVENT_PROPERTIES: {
   "output copied": ["tool"],
   "output downloaded": ["tool"],
   "tool error": ["tool", "error_code"],
+  "webmcp tool called": ["tool", "result", "input_size"],
 }
-const REQUIRED_POSTHOG_PROPERTIES = ["token", "distinct_id"] as const
+const REQUIRED_POSTHOG_PROPERTIES = [
+  "token",
+  "distinct_id",
+  "$cookieless_mode",
+] as const
+const SAFE_CONTEXT_PROPERTIES = [
+  "$session_id",
+  "$window_id",
+  "$pageview_id",
+  "$current_url",
+  "$pathname",
+  "$host",
+  "$browser",
+  "$browser_version",
+  "$os",
+  "$os_version",
+  "$device_type",
+  "$viewport_width",
+  "$viewport_height",
+  "$screen_width",
+  "$screen_height",
+  "$browser_language_prefix",
+  "$referrer",
+  "$referring_domain",
+  "$lib",
+  "$lib_version",
+  "$geoip_disable",
+] as const
+const AUTOCAPTURE_PROPERTIES = [
+  "action",
+  "destination",
+  "location",
+  "tool",
+] as const
 const AUTOMATIC_EVENTS = new Set([
   "$pageview",
   "$pageleave",
@@ -42,10 +87,57 @@ const AUTOMATIC_EVENTS = new Set([
 ])
 
 export const POSTHOG_API_KEY = import.meta.env.VITE_POSTHOG_KEY
+type PageKind = "tool" | "home" | "guides" | "guide" | "privacy" | "other"
+
+const TOOL_BY_PATH: Partial<Record<string, ToolName>> = {
+  "/compare": "compare",
+  "/example": "example",
+  "/validator": "inspect",
+  "/merge": "merge",
+  "/format": "format",
+  "/convert": "convert",
+}
+const PAGE_KIND_BY_PATH: Partial<Record<string, PageKind>> = {
+  "/": "home",
+  "/guides": "guides",
+  "/privacy": "privacy",
+}
+
+function cleanUrl(value: unknown) {
+  if (typeof value !== "string") return undefined
+  try {
+    const url = new URL(value, "https://envsift.damnlabs.com")
+    return `${url.origin}${url.pathname}`
+  } catch {
+    return undefined
+  }
+}
+
+function pageContext(pathname: string) {
+  const tool = TOOL_BY_PATH[pathname]
+  let page_kind = PAGE_KIND_BY_PATH[pathname] ?? "other"
+  if (tool) page_kind = "tool"
+  else if (pathname.startsWith("/guides/")) page_kind = "guide"
+
+  return { route: pathname, page_kind, ...(tool ? { tool } : {}) }
+}
+
 export const POSTHOG_OPTIONS = {
   api_host: import.meta.env.VITE_POSTHOG_HOST || "https://us.i.posthog.com",
   defaults: "2026-05-30",
-  autocapture: false,
+  autocapture: {
+    dom_event_allowlist: ["click"],
+    element_allowlist: ["a", "button"],
+    css_selector_allowlist: ["[data-ph-capture]"],
+    element_attribute_ignorelist: [
+      "href",
+      "class",
+      "style",
+      "title",
+      "aria-label",
+    ],
+    capture_copied_text: false,
+  },
   capture_pageview: "history_change",
   capture_pageleave: true,
   capture_dead_clicks: false,
@@ -56,39 +148,110 @@ export const POSTHOG_OPTIONS = {
   disable_surveys: true,
   advanced_disable_flags: true,
   rageclick: false,
-  person_profiles: "identified_only",
-  persistence: "localStorage",
+  person_profiles: "never",
+  cookieless_mode: "always",
+  property_denylist: ["$raw_user_agent"],
+  mask_all_text: true,
   respect_dnt: true,
   before_send: (event) => {
     if (!event) return null
-    if (AUTOMATIC_EVENTS.has(event.event)) return event
+
+    const properties: Record<string, unknown> = {
+      ...event.properties,
+      $geoip_disable: true,
+    }
+    const currentUrl = cleanUrl(properties.$current_url)
+    const referrer = cleanUrl(properties.$referrer)
+    if (currentUrl) properties.$current_url = currentUrl
+    else delete properties.$current_url
+    if (referrer) properties.$referrer = referrer
+    else delete properties.$referrer
+    delete properties.$raw_user_agent
+    Object.keys(properties).forEach((property) => {
+      if (property.startsWith("$geoip_") && property !== "$geoip_disable") {
+        delete properties[property]
+      }
+    })
+
+    const pathname =
+      typeof properties.$pathname === "string"
+        ? properties.$pathname.split(/[?#]/, 1)[0]
+        : currentUrl
+          ? new URL(currentUrl).pathname
+          : "/"
+    properties.$pathname = pathname
+    const context = pageContext(pathname)
+
+    if (AUTOMATIC_EVENTS.has(event.event)) {
+      return { ...event, properties: { ...properties, ...context } }
+    }
 
     const eventName = event.event as keyof AnalyticsEvents
-    if (!Object.hasOwn(EVENT_PROPERTIES, eventName)) return null
+    const eventProperties = Object.hasOwn(EVENT_PROPERTIES, eventName)
+      ? EVENT_PROPERTIES[eventName]
+      : event.event === "$autocapture"
+        ? AUTOCAPTURE_PROPERTIES
+        : undefined
+    if (!eventProperties) return null
 
-    const properties = event.properties
     return {
       ...event,
-      properties: Object.fromEntries(
-        [...REQUIRED_POSTHOG_PROPERTIES, ...EVENT_PROPERTIES[eventName]]
-          .filter((property) => properties[property] !== undefined)
-          .map((property) => [property, properties[property]])
-      ),
+      properties: {
+        ...Object.fromEntries(
+          [
+            ...REQUIRED_POSTHOG_PROPERTIES,
+            ...SAFE_CONTEXT_PROPERTIES,
+            ...eventProperties,
+          ]
+            .filter((property) => properties[property] !== undefined)
+            .map((property) => [property, properties[property]])
+        ),
+        ...context,
+      },
     }
   },
 } satisfies Partial<PostHogConfig>
 
-export function useAnalytics() {
-  const posthog = usePostHog()
+let posthogPromise: Promise<PostHog | undefined> | undefined
 
+function getPostHog() {
+  if (!POSTHOG_API_KEY) return
+
+  posthogPromise ??= import("posthog-js")
+    .then(({ default: posthog }) => {
+      posthog.init(POSTHOG_API_KEY, POSTHOG_OPTIONS)
+      return posthog
+    })
+    .catch(() => {
+      posthogPromise = undefined
+      return undefined
+    })
+  return posthogPromise
+}
+
+function withPostHog(callback: (posthog: PostHog) => void) {
+  void getPostHog()?.then((posthog) => {
+    if (posthog) callback(posthog)
+  })
+}
+
+export function Analytics() {
+  useEffect(() => {
+    void getPostHog()
+  }, [])
+
+  return null
+}
+
+export function useAnalytics() {
   return useCallback(
     <TEvent extends keyof AnalyticsEvents>(
       event: TEvent,
       properties: AnalyticsEvents[TEvent]
     ) => {
-      if (POSTHOG_API_KEY) posthog.capture(event, properties)
+      withPostHog((posthog) => posthog.capture(event, properties))
     },
-    [posthog]
+    []
   )
 }
 
@@ -105,6 +268,15 @@ export function variableCountBucket(
   if (count <= 50) return "11-50"
   if (count <= 100) return "51-100"
   return "101+"
+}
+
+export function contentSizeBucket(
+  length: number
+): "empty" | "small" | "medium" | "large" {
+  if (length <= 0) return "empty"
+  if (length <= 1_000) return "small"
+  if (length <= 10_000) return "medium"
+  return "large"
 }
 
 export function useToolCompletion({

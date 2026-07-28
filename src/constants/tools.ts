@@ -9,6 +9,7 @@ import {
 
 export const TOOLS = [
   {
+    id: "compare",
     to: "/compare",
     nav: "Compare",
     title: "ENV Compare",
@@ -17,6 +18,7 @@ export const TOOLS = [
     icon: GitCompareArrowsIcon,
   },
   {
+    id: "example",
     to: "/example",
     nav: "Example",
     title: ".env.example Generator",
@@ -24,14 +26,16 @@ export const TOOLS = [
     icon: FileKeyIcon,
   },
   {
-    to: "/inspect",
-    nav: "Inspect",
-    title: "ENV Inspector",
+    id: "inspect",
+    to: "/validator",
+    nav: "Validate",
+    title: "ENV Validator",
     description:
       "Catch invalid lines, duplicates, blanks, and missing references.",
     icon: FileSearchIcon,
   },
   {
+    id: "merge",
     to: "/merge",
     nav: "Merge",
     title: "Merge & Clean",
@@ -39,6 +43,7 @@ export const TOOLS = [
     icon: CombineIcon,
   },
   {
+    id: "format",
     to: "/format",
     nav: "Format",
     title: "ENV Formatter",
@@ -46,6 +51,7 @@ export const TOOLS = [
     icon: WandSparklesIcon,
   },
   {
+    id: "convert",
     to: "/convert",
     nav: "Convert",
     title: "Format Converter",

@@ -1,13 +1,12 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
-import { TanStackDevtools } from "@tanstack/react-devtools"
-import { PostHogProvider } from "@posthog/react"
 import { ThemeProvider } from "next-themes"
 
 import { AppHeader } from "@/components/app-header"
+import { NotFoundPage } from "@/components/not-found-page"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { SITE_CONFIG } from "@/constants/site"
-import { POSTHOG_API_KEY, POSTHOG_OPTIONS } from "@/lib/analytics"
+import { Analytics } from "@/lib/analytics"
+import { WebMcp } from "@/lib/webmcp"
 import appCss from "../styles.css?url"
 
 export const Route = createRootRoute({
@@ -27,11 +26,6 @@ export const Route = createRootRoute({
         name: "description",
         content:
           "Compare, inspect, format, merge, redact, and convert .env files privately in your browser. No uploads, accounts, or server processing.",
-      },
-      {
-        name: "keywords",
-        content:
-          "env compare, dotenv compare, env formatter, env validator, env merge, env example generator, environment variables, developer tools",
       },
       {
         name: "author",
@@ -100,17 +94,7 @@ export const Route = createRootRoute({
       },
     ],
   }),
-  notFoundComponent: () => (
-    <main className="mx-auto grid min-h-[calc(100svh-3.5rem)] max-w-7xl place-items-center p-6 text-center">
-      <div>
-        <p className="text-sm font-medium text-primary">404</p>
-        <h1 className="mt-2 text-3xl font-semibold">Tool not found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The requested {SITE_CONFIG.name} page does not exist.
-        </p>
-      </div>
-    </main>
-  ),
+  notFoundComponent: NotFoundPage,
   shellComponent: RootDocument,
 })
 
@@ -135,24 +119,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="min-h-svh bg-background text-foreground antialiased">
-        {POSTHOG_API_KEY ? (
-          <PostHogProvider apiKey={POSTHOG_API_KEY} options={POSTHOG_OPTIONS}>
-            {app}
-          </PostHogProvider>
-        ) : (
-          app
-        )}
-        <TanStackDevtools
-          config={{
-            position: "bottom-right",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
+        {app}
+        <WebMcp />
+        <Analytics />
         <Scripts />
       </body>
     </html>
