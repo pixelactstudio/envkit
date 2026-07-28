@@ -64,7 +64,8 @@ function PrivacyPage() {
               <li>Selected filenames or downloaded output</li>
               <li>Copied text or raw parser error messages</li>
               <li>
-                Session recordings, form autocapture, or exception payloads
+                Session recordings, editor/form input autocapture, or exception
+                payloads
               </li>
             </ul>
           </div>
@@ -77,6 +78,8 @@ function PrivacyPage() {
               <li>Which tool was opened</li>
               <li>Input method: paste, file, or drop</li>
               <li>Bucketed file and variable counts plus success or failure</li>
+              <li>Explicitly marked navigation and theme-control clicks</li>
+              <li>WebMCP tool name, outcome, and bucketed input size</li>
             </ul>
           </div>
         </section>
@@ -84,10 +87,26 @@ function PrivacyPage() {
         <section>
           <h2 className="text-xl font-semibold">Storage and third parties</h2>
           <p className="mt-3 text-sm/relaxed text-muted-foreground">
-            The selected theme and anonymous analytics identifier may be stored
-            in localStorage. When analytics is configured, privacy-filtered
-            events go to PostHog; browser Do Not Track is respected. EnvSift
-            does not create accounts, upload files, or persist editor contents.
+            The selected theme is stored in localStorage. PostHog receives
+            privacy-filtered events in cookieless mode and stores no analytics
+            identifier in cookies, localStorage, or sessionStorage. It derives a
+            non-reversible daily identifier on its servers for audience
+            measurement, so visitors cannot be recognized across days. Browser
+            Do Not Track is respected. EnvSift does not create accounts, upload
+            files, or persist editor contents.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold">Browser agents and WebMCP</h2>
+          <p className="mt-3 text-sm/relaxed text-muted-foreground">
+            In compatible browsers, EnvSift exposes its six deterministic tools
+            through WebMCP. These tools run the same local functions as the
+            visible interface. EnvSift analytics receive only the tool name,
+            success or failure, and a broad input-size bucket—never tool
+            arguments or results. Content you give to a browser agent may still
+            be processed under that agent provider's privacy terms, so do not
+            share secrets with an agent you do not trust.
           </p>
         </section>
 
@@ -103,11 +122,22 @@ function PrivacyPage() {
               target="_blank"
               rel="noreferrer"
               className={buttonVariants({ variant: "outline" })}
+              data-ph-capture
+              data-ph-capture-attribute-action="navigate_external"
+              data-ph-capture-attribute-destination="github"
+              data-ph-capture-attribute-location="privacy_page"
             >
               <GithubIcon data-icon="inline-start" />
               View source
             </a>
-            <Link to="/guides" className={buttonVariants()}>
+            <Link
+              to="/guides"
+              className={buttonVariants()}
+              data-ph-capture
+              data-ph-capture-attribute-action="navigate"
+              data-ph-capture-attribute-destination="guides"
+              data-ph-capture-attribute-location="privacy_page"
+            >
               Read ENV guides
               <ArrowRightIcon data-icon="inline-end" />
             </Link>

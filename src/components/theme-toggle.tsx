@@ -12,6 +12,9 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       aria-label="Toggle color theme"
+      data-ph-capture
+      data-ph-capture-attribute-action="toggle_theme"
+      data-ph-capture-attribute-location="header"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
     >
       <SunIcon className="size-4 dark:hidden" />

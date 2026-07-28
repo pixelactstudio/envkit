@@ -88,6 +88,11 @@ export function ToolSeoContent({ tool }: { tool: ToolName }) {
               method on the{" "}
               <Link
                 to="/privacy"
+                data-ph-capture
+                data-ph-capture-attribute-action="navigate"
+                data-ph-capture-attribute-destination="privacy"
+                data-ph-capture-attribute-location="tool_content"
+                data-ph-capture-attribute-tool={tool}
                 className="font-medium text-foreground underline underline-offset-3"
               >
                 privacy and methodology page
@@ -100,6 +105,11 @@ export function ToolSeoContent({ tool }: { tool: ToolName }) {
             <Link
               to="/guides/$slug"
               params={{ slug: content.guide }}
+              data-ph-capture
+              data-ph-capture-attribute-action="navigate"
+              data-ph-capture-attribute-destination="guide"
+              data-ph-capture-attribute-location="tool_content"
+              data-ph-capture-attribute-tool={tool}
               className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-primary underline underline-offset-3"
             >
               Read the related ENV guide
@@ -110,6 +120,11 @@ export function ToolSeoContent({ tool }: { tool: ToolName }) {
                 <Link
                   key={item.id}
                   to={item.to}
+                  data-ph-capture
+                  data-ph-capture-attribute-action="navigate"
+                  data-ph-capture-attribute-destination={item.to}
+                  data-ph-capture-attribute-location="related_tools"
+                  data-ph-capture-attribute-tool={item.id}
                   className="text-sm underline underline-offset-3"
                 >
                   {item.title}

@@ -63,7 +63,16 @@ function HomePage() {
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {TOOLS.map((tool) => (
-            <Link key={tool.to} to={tool.to} className="group outline-none">
+            <Link
+              key={tool.to}
+              to={tool.to}
+              className="group outline-none"
+              data-ph-capture
+              data-ph-capture-attribute-action="navigate"
+              data-ph-capture-attribute-destination={tool.to}
+              data-ph-capture-attribute-location="home_tool_grid"
+              data-ph-capture-attribute-tool={tool.id}
+            >
               <Card
                 size="sm"
                 className="h-full border-transparent transition-colors group-hover:bg-muted/50 group-focus-visible:ring-2 group-focus-visible:ring-ring"
@@ -96,6 +105,10 @@ function HomePage() {
             Built for the community by{" "}
             <a
               href={SITE_CONFIG.damnLabs.url}
+              data-ph-capture
+              data-ph-capture-attribute-action="navigate_external"
+              data-ph-capture-attribute-destination="damn_labs"
+              data-ph-capture-attribute-location="home_footer"
               className="underline underline-offset-3 hover:text-foreground"
             >
               {SITE_CONFIG.damnLabs.name}
@@ -103,6 +116,10 @@ function HomePage() {
             , a{" "}
             <a
               href={SITE_CONFIG.pixelactStudio.url}
+              data-ph-capture
+              data-ph-capture-attribute-action="navigate_external"
+              data-ph-capture-attribute-destination="pixelact_studio"
+              data-ph-capture-attribute-location="home_footer"
               className="underline underline-offset-3 hover:text-foreground"
             >
               {SITE_CONFIG.pixelactStudio.name}
@@ -114,18 +131,30 @@ function HomePage() {
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 underline underline-offset-3 hover:text-foreground"
+            data-ph-capture
+            data-ph-capture-attribute-action="navigate_external"
+            data-ph-capture-attribute-destination="github"
+            data-ph-capture-attribute-location="home_footer"
           >
             <GithubIcon className="size-3" />
             {SITE_CONFIG.github.name}
           </a>
           <Link
             to="/guides"
+            data-ph-capture
+            data-ph-capture-attribute-action="navigate"
+            data-ph-capture-attribute-destination="guides"
+            data-ph-capture-attribute-location="home_footer"
             className="underline underline-offset-3 hover:text-foreground"
           >
             Guides
           </Link>
           <Link
             to="/privacy"
+            data-ph-capture
+            data-ph-capture-attribute-action="navigate"
+            data-ph-capture-attribute-destination="privacy"
+            data-ph-capture-attribute-location="home_footer"
             className="underline underline-offset-3 hover:text-foreground"
           >
             Privacy

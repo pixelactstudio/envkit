@@ -41,6 +41,10 @@ export function AppHeader() {
         <Link
           to="/"
           className="mr-auto flex items-center gap-2.5 font-semibold tracking-tight"
+          data-ph-capture
+          data-ph-capture-attribute-action="navigate"
+          data-ph-capture-attribute-destination="home"
+          data-ph-capture-attribute-location="header"
         >
           <img src={SITE_CONFIG.logo} alt="" className="size-5" />
           <span>{SITE_CONFIG.name}</span>
@@ -67,7 +71,16 @@ export function AppHeader() {
                 {TOOLS.map((tool) => (
                   <NavigationMenuLink
                     key={tool.to}
-                    render={<Link to={tool.to} />}
+                    render={
+                      <Link
+                        to={tool.to}
+                        data-ph-capture
+                        data-ph-capture-attribute-action="navigate"
+                        data-ph-capture-attribute-destination={tool.to}
+                        data-ph-capture-attribute-location="header_tools"
+                        data-ph-capture-attribute-tool={tool.id}
+                      />
+                    }
                     className="items-start p-3"
                     closeOnClick
                   >
@@ -87,6 +100,10 @@ export function AppHeader() {
 
         <Link
           to="/guides"
+          data-ph-capture
+          data-ph-capture-attribute-action="navigate"
+          data-ph-capture-attribute-destination="guides"
+          data-ph-capture-attribute-location="header"
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
             "hidden md:inline-flex"
@@ -96,6 +113,10 @@ export function AppHeader() {
         </Link>
         <Link
           to="/privacy"
+          data-ph-capture
+          data-ph-capture-attribute-action="navigate"
+          data-ph-capture-attribute-destination="privacy"
+          data-ph-capture-attribute-location="header"
           className={cn(
             buttonVariants({ variant: "ghost", size: "sm" }),
             "hidden md:inline-flex"
@@ -109,6 +130,10 @@ export function AppHeader() {
           target="_blank"
           rel="noreferrer"
           className={buttonVariants({ variant: "ghost", size: "icon" })}
+          data-ph-capture
+          data-ph-capture-attribute-action="navigate_external"
+          data-ph-capture-attribute-destination="github"
+          data-ph-capture-attribute-location="header"
         >
           <GithubIcon />
           <span className="sr-only">View {SITE_CONFIG.name} on GitHub</span>
@@ -134,6 +159,11 @@ export function AppHeader() {
               <Link
                 key={tool.to}
                 to={tool.to}
+                data-ph-capture
+                data-ph-capture-attribute-action="navigate"
+                data-ph-capture-attribute-destination={tool.to}
+                data-ph-capture-attribute-location="mobile_menu"
+                data-ph-capture-attribute-tool={tool.id}
                 className="flex items-center gap-2 px-2 py-2 text-xs outline-none hover:bg-muted focus-visible:bg-muted"
                 onClick={closeMobileMenu}
               >
@@ -144,6 +174,10 @@ export function AppHeader() {
             <div className="mt-1 border-t pt-1">
               <Link
                 to="/guides"
+                data-ph-capture
+                data-ph-capture-attribute-action="navigate"
+                data-ph-capture-attribute-destination="guides"
+                data-ph-capture-attribute-location="mobile_menu"
                 className="block px-2 py-2 text-xs outline-none hover:bg-muted focus-visible:bg-muted"
                 onClick={closeMobileMenu}
               >
@@ -151,6 +185,10 @@ export function AppHeader() {
               </Link>
               <Link
                 to="/privacy"
+                data-ph-capture
+                data-ph-capture-attribute-action="navigate"
+                data-ph-capture-attribute-destination="privacy"
+                data-ph-capture-attribute-location="mobile_menu"
                 className="block px-2 py-2 text-xs outline-none hover:bg-muted focus-visible:bg-muted"
                 onClick={closeMobileMenu}
               >

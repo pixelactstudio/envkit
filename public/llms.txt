@@ -20,6 +20,10 @@ EnvSift processes all pasted and local file content inside the user's browser. I
 - [ENV guides](https://envsift.damnlabs.com/guides): Practical guidance for comparing, validating, formatting, and managing environment configuration.
 - [Privacy and methodology](https://envsift.damnlabs.com/privacy): How browser-only file processing and privacy-filtered analytics work.
 
+## Browser agent tools
+
+In WebMCP-compatible browsers, EnvSift exposes compare, validate, format, generate-example, merge, and convert tools from the open page. Tool execution remains client-side. Users should only provide ENV content they are willing to share with their browser agent provider.
+
 ## Guides
 
 - [Compare .env and .env.example](https://envsift.damnlabs.com/guides/compare-env-and-env-example)
